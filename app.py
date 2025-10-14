@@ -3,26 +3,32 @@ import pandas as pd
 import plotly.express as px
 
 # Title
-st.title("🎵 Music Data Explorer")
+st.title("Music Data Explorer")
 
 # Load data
-df = pd.read_csv('WorldHits.csv')
+df = pd.read_csv("WorldHits.csv")
 
-# Let user select which column to plot
-column = st.selectbox(
-    "Select a feature to plot over time:",
-    ['energy', 'danceability', 'loudness', 'tempo', 'valence']
+# Feature selector (added Duration)
+feature = st.selectbox(
+    "Select a feature:",
+    ["energy", "danceability", "loudness", "tempo", "valence", "duration"]
 )
 
-# Create the line chart
-fig = px.line(
-    df.groupby('year')[column].mean().reset_index(),
-    x='year',
-    y=column,
-    title=f'{column.capitalize()} Over Time'
+# --- Keep current visualization: line chart of yearly average ---
+fig_line = px.line(
+    df.groupby("year")[feature].mean().reset_index(),
+    x="year",
+    y=feature,
+    title=f"{feature} Over Time (Yearly Average)"
 )
+st.plotly_chart(fig_line, use_container_width=True)
 
-# Display the chart
-st.plotly_chart(fig)
-
-st.write(f"Average {column}: {df[column].mean():.2f}")
+# --- New visualization: box plots by musical key ---
+fig_box = px.box(
+    df,
+    x="key",
+    y=feature,
+    points="all",
+    title=f"{feature} by Musical Key"
+)
+st.plotly_chart(fig_box, use_container_width=True)
