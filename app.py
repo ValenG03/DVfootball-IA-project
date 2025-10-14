@@ -24,3 +24,5 @@ fig = px.line(
 
 # Display the chart
 st.plotly_chart(fig)
+
+st.write(f"Average {column}: {df[column].mean():.2f}")
