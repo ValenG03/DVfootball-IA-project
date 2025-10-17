@@ -70,7 +70,7 @@ def load_football(csv_input):
         df = pd.read_csv(csv_input, encoding="latin1", low_memory=False)
         st.sidebar.success("Football CSV loaded using pandas.read_csv (latin1)")
         return df
-    except Exception as e:
+    except Exception:
         st.sidebar.info("Falling back to robust CSV parsing for football results.")
         try:
             if isinstance(csv_input, str):
@@ -168,7 +168,7 @@ def weekend_for_call_date(ts):
         friday = ts - pd.Timedelta(days=days_to_subtract)
     else:
         # previous week's friday
-        days_to_subtract = (dow + 3)  # dow 0->3, 1->4 etc: Mon -> previous Friday is -3 days
+        days_to_subtract = dow + 3  # Mon(0)->3 days back to previous Friday, Tue->4, etc.
         friday = ts - pd.Timedelta(days=days_to_subtract)
     sunday = friday + pd.Timedelta(days=2)
     return (pd.Timestamp(friday).date(), pd.Timestamp(sunday).date())
@@ -311,11 +311,30 @@ col3.metric("Non-match weekend calls", len(df_non_match_weekend_calls))
 df_calls["weekend_range"] = df_calls[date_col].apply(lambda x: get_weekend_range_for_date_obj(x, weekend_ranges) if not pd.isna(x) else None)
 df_football["weekend_range"] = df_football["Match_Date"].apply(lambda x: weekend_friday_to_sunday_for_matchdate(x) if not pd.isna(x) else None)
 
-merged_weekend = pd.merge(df_calls[df_calls["is_match_weekend"]], df_football.dropna(subset=["weekend_range"]), on="weekend_range", how="left", suffixes=("_call", "_match"))
-merged_day = pd.merge(df_calls[df_calls["is_match_day"]], df_football.dropna(subset=["Match_Date"]), left_on="llamado_fecha_date", right_on=df_football["Match_Date"].dt.date, how="left", suffixes=("_call", "_match"))
+# --- Fix applied: create a date-only column on the football df and merge using column names ---
+# ensure football has a date-only column we can merge on
+df_football["Match_Date_date"] = df_football["Match_Date"].dt.date
 
-st.write(f"Merged rows (calls matched to football by weekend_range): {len(merged_weekend)}")
+# Merge calls that fall exactly on match days using column names (no Series expressions)
+merged_day = pd.merge(
+    df_calls[df_calls["is_match_day"]].copy(),
+    df_football.dropna(subset=["Match_Date", "Match_Date_date"]).copy(),
+    left_on="llamado_fecha_date",
+    right_on="Match_Date_date",
+    how="left",
+    suffixes=("_call", "_match")
+)
 st.write(f"Merged rows (calls matched to football by exact match date): {len(merged_day)}")
+
+# Merge by weekend_range
+merged_weekend = pd.merge(
+    df_calls[df_calls["is_match_weekend"]].copy(),
+    df_football.dropna(subset=["weekend_range"]).copy(),
+    on="weekend_range",
+    how="left",
+    suffixes=("_call", "_match")
+)
+st.write(f"Merged rows (calls matched to football by weekend_range): {len(merged_weekend)}")
 
 # Attempt to detect match result column in football df (common result column used in notebook: col_6 / 'Result')
 result_col = None
@@ -335,7 +354,13 @@ if result_col is None:
         result_col = None
 
 if result_col is not None:
-    calls_with_results = pd.merge(df_calls[df_calls["is_match_day_or_weekend"]], df_football[[result_col, "Match_Date", "weekend_range"]], left_on="weekend_range", right_on="weekend_range", how="left")
+    calls_with_results = pd.merge(
+        df_calls[df_calls["is_match_day_or_weekend"]].copy(),
+        df_football[[result_col, "Match_Date", "weekend_range", "Match_Date_date"]].copy(),
+        left_on="weekend_range",
+        right_on="weekend_range",
+        how="left"
+    )
     calls_by_result = calls_with_results[calls_with_results[result_col].notna()].groupby(result_col).size().reset_index(name="call_count")
     st.subheader("Distribution of calls by reported match result (on matched weekends)")
     st.dataframe(calls_by_result)
