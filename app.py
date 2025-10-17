@@ -287,3 +287,96 @@ st.markdown(
     "- The football file format may vary; the app tries to detect date/result columns but may need manual guidance.\n"
     "- If parsing fails for the football file, try saving it with a stable delimiter/encoding and re-uploading.\n"
 )
+
+# Streamlit app for analyzing calls vs Boca Juniors match weekends
+# Place this file next to your CSVs or upload them via the UI.
+import streamlit as st
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
+import csv
+import io
+from datetime import timedelta
+
+st.set_page_config(page_title="Boca Matches vs Calls Analysis", layout="wide")
+
+st.title("Boca Juniors Match Weekends vs Domestic Violence Calls")
+st.markdown(
+    "Analyze domestic violence call volumes on Boca Juniors match weekends vs non-match weekends. "
+    "Upload the two CSVs or use local files."
+)
+
+# Sidebar: file upload or local path option
+st.sidebar.header("Data inputs")
+use_upload = st.sidebar.radio("Provide data via:", ("Upload files", "Local files (path)"))
+
+calls_file = None
+football_file = None
+
+if use_upload == "Upload files":
+    calls_upload = st.sidebar.file_uploader(
+        "Upload llamados-violencia-familiar-202407-Argentina.csv", type=["csv"]
+    )
+    football_upload = st.sidebar.file_uploader(
+        "Upload Boca Juniors Results Tournament May-Dic-2024.csv", type=["csv"]
+    )
+    if calls_upload:
+        calls_file = io.StringIO(calls_upload.getvalue().decode("utf-8", errors="replace"))
+    if football_upload:
+        # football file may be latin1 encoded; try to decode safely
+        try:
+            football_file = io.StringIO(football_upload.getvalue().decode("latin1"))
+        except Exception:
+            football_file = io.StringIO(football_upload.getvalue().decode("utf-8", errors="replace"))
+else:
+    st.sidebar.markdown("Provide local file paths (relative to where you run streamlit).")
+    calls_path = st.sidebar.text_input("Calls CSV path", value="llamados-violencia-familiar-202407-Argentina.csv")
+    football_path = st.sidebar.text_input("Football CSV path", value="Boca Juniors Results Tournament May-Dic-2024.csv")
+    if calls_path:
+        calls_file = calls_path
+    if football_path:
+        football_file = football_path
+
+@st.cache_data
+def load_calls(csv_input):
+    # attempt pandas read first, fallback to python engine if needed
+    try:
+        df = pd.read_csv(csv_input, low_memory=False)
+        st.sidebar.success("Calls CSV loaded using pandas.read_csv")
+        return df
+    except Exception as e:
+        st.sidebar.warning(f"Failed reading calls CSV with pandas: {e}")
+        try:
+            content = pd.read_table(csv_input, sep=",", engine="python", encoding="utf-8")
+            return content
+        except Exception:
+            st.sidebar.error("Unable to read calls CSV. Please check encoding or file format.")
+            return None
+
+@st.cache_data
+def load_football(csv_input):
+    # try pandas read first (latin1 often for spreadsheets exported from Excel)
+    try:
+        df = pd.read_csv(csv_input, encoding="latin1", low_memory=False)
+        st.sidebar.success("Football CSV loaded using pandas.read_csv (latin1)")
+        return df
+    except Exception as e:
+        st.sidebar.info("Falling back to robust CSV parsing for football results.")
+        try:
+            if isinstance(csv_input, str):
+                f = open(csv_input, "r", encoding="latin1", errors="replace")
+            else:
+                csv_input.seek(0)
+                f = io.TextIOWrapper(csv_input.buffer, encoding="latin1", errors="replace") if hasattr(csv_input, "buffer") else csv_input
+            reader = csv.reader(f)
+            header = next(reader, None)
+            dates = []
+            data_rows = []
+            for row in reader:
+                if not row:
+                    continue
+                dates.append(row[0])
+                data_rows.append(row[1:])
+            max_cols = max((len(r) for r in data_rows), default=0)
+            columns = [f"col_{i}" for i in range(max_cols)]
+            df = pd.DataFrame([r + [None] *
