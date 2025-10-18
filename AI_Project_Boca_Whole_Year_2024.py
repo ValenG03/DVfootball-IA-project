@@ -102,7 +102,7 @@ def main():
 if __name__ == '__main__':
     main()
 
-!pip install streamlit
+
 
 import pandas as pd
 import matplotlib.pyplot as plt
