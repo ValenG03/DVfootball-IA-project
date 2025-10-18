@@ -109,10 +109,11 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import streamlit as st
 
-def load_data(calls_filepath, matches_filepath):
+@st.cache_data
+def load_data(calls_file, matches_file):
     """Loads the calls and matches data into pandas DataFrames."""
-    df_calls = pd.read_csv(calls_filepath, encoding='latin1')
-    df_matches = pd.read_excel(matches_filepath, header=None)
+    df_calls = pd.read_csv(calls_file, encoding='latin1')
+    df_matches = pd.read_excel(matches_file, header=None)
 
     # Preprocess matches data
     df_matches = df_matches.iloc[1:].copy()
@@ -121,17 +122,20 @@ def load_data(calls_filepath, matches_filepath):
 
     return df_calls, df_matches
 
+@st.cache_data
 def preprocess_dates(df_calls, df_matches):
     """Cleans and formats date columns in both DataFrames."""
     df_calls['llamado_fecha'] = pd.to_datetime(df_calls['llamado_fecha']).dt.date
     df_matches['Date'] = pd.to_datetime(df_matches['Date']).dt.date
     return df_calls, df_matches
 
+@st.cache_data
 def merge_data(df_calls, df_matches):
     """Merges the two DataFrames based on the dates."""
     df_merged = pd.merge(df_calls, df_matches, left_on='llamado_fecha', right_on='Date', how='inner')
     return df_merged
 
+@st.cache_data
 def analyze_calls(df_calls, df_merged, df_matches):
     """Analyzes domestic violence calls on weekend days with and without Boca matches."""
     df_calls['llamado_fecha'] = pd.to_datetime(df_calls['llamado_fecha'])
@@ -184,28 +188,35 @@ def main():
     """Main function to run the data processing and analysis."""
     st.title("Domestic Violence Calls and Boca Juniors Matches Analysis")
 
-    calls_filepath = "/content/Llamados Violencia Familiar hasta Agosto 2024 Argentina.csv"
-    matches_filepath = "/content/Boca_2024_Whole_Year.csv.xlsx"
+    st.write("Upload the data files:")
+    calls_file = st.file_uploader("Upload Domestic Violence Calls CSV", type=["csv"])
+    matches_file = st.file_uploader("Upload Boca Juniors Matches Excel", type=["xlsx"])
 
-    df_calls, df_matches = load_data(calls_filepath, matches_filepath)
-    df_calls, df_matches = preprocess_dates(df_calls, df_matches)
-    df_merged = merge_data(df_calls, df_matches)
-    analysis_results = analyze_calls(df_calls, df_merged, df_matches)
-    fig1, fig2 = visualize_data(df_calls, df_matches)
+    if calls_file is not None and matches_file is not None:
+        df_calls, df_matches = load_data(calls_file, matches_file)
+        df_calls, df_matches = preprocess_dates(df_calls, df_matches)
+        df_merged = merge_data(df_calls, df_matches)
+        analysis_results = analyze_calls(df_calls, df_merged, df_matches)
+        fig1, fig2 = visualize_data(df_calls, df_matches)
 
-    st.write("Analysis Results:")
-    st.write(f"Number of domestic violence calls on weekend days Boca played: {analysis_results['num_calls_boca_playing']}")
-    st.write(f"Number of unique weekend days Boca played: {analysis_results['num_boca_playing_weekend_days']}")
-    st.write(f"Average calls per weekend day Boca played: {analysis_results['avg_calls_boca_playing_weekend']:.2f}")
-    st.write("-" * 30)
-    st.write(f"Number of domestic violence calls on weekend days Boca did not play: {analysis_results['num_calls_boca_not_playing_weekend']}")
-    st.write(f"Number of unique weekend days Boca did not play: {analysis_results['num_boca_not_playing_weekend_days']}")
-    st.write(f"Average calls per weekend day Boca did not play: {analysis_results['avg_calls_boca_not_playing_weekend']:.2f}")
+        st.write("Analysis Results:")
+        st.write(f"Number of domestic violence calls on weekend days Boca played: {analysis_results['num_calls_boca_playing']}")
+        st.write(f"Number of unique weekend days Boca played: {analysis_results['num_boca_playing_weekend_days']}")
+        st.write(f"Average calls per weekend day Boca played: {analysis_results['avg_calls_boca_playing_weekend']:.2f}")
+        st.write("-" * 30)
+        st.write(f"Number of domestic violence calls on weekend days Boca did not play: {analysis_results['num_calls_boca_not_playing_weekend']}")
+        st.write(f"Number of unique weekend days Boca did not play: {analysis_results['num_boca_not_playing_weekend_days']}")
+        st.write(f"Average calls per weekend day Boca did not play: {analysis_results['avg_calls_boca_not_playing_weekend']:.2f}")
 
-    st.pyplot(fig1)
-    st.pyplot(fig2)
+        st.pyplot(fig1)
+        st.pyplot(fig2)
+    else:
+        st.write("Please upload both files to proceed with the analysis.")
+
 
 if __name__ == '__main__':
     main()
+
+
 
 
