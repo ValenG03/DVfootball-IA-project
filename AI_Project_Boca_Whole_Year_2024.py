@@ -1,12 +1,6 @@
 import pandas as pd
+import streamlit as st
 import matplotlib.pyplot as plt
-import seaborn as sns
-import streamlit as st
-
-// ...existing code...
-import pandas as pd
-import streamlit as st
-# ...existing code...
 
 # Antes: widget de subida
 # uploaded_file = st.file_uploader("Sube el archivo CSV", type=["csv"])
@@ -120,12 +114,6 @@ def main():
 if __name__ == '__main__':
     main()
 
-
-
-import pandas as pd
-import matplotlib.pyplot as plt
-import seaborn as sns
-import streamlit as st
 
 @st.cache_data
 def load_data(calls_file, matches_file):
