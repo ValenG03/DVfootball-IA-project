@@ -3,6 +3,24 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import streamlit as st
 
+// ...existing code...
+import pandas as pd
+import streamlit as st
+# ...existing code...
+
+# Antes: widget de subida
+# uploaded_file = st.file_uploader("Sube el archivo CSV", type=["csv"])
+# if uploaded_file is not None:
+#     df = pd.read_csv(uploaded_file)
+
+# Cambiado: leer directamente el archivo en la raíz del proyecto
+st.write("Leyendo datos desde 2024Argentina.csv")
+df = pd.read_csv("2024Argentina.csv")
+
+# ...existing code...
+st.dataframe(df.head())
+# ...existing code...
+
 def load_data(calls_filepath, matches_filepath):
     """Loads the calls and matches data into pandas DataFrames."""
     df_calls = pd.read_csv(calls_filepath, encoding='latin1')
