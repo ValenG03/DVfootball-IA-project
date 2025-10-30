@@ -4,22 +4,97 @@ import matplotlib.pyplot as plt
 
 st.set_page_config(page_title="DV vs Boca", layout="wide")
 
+EXPECTED_MATCH_COLS = ['Date','Tournament','Instance','Rival','Boca_Goals',
+                       'Rival_Goals','Result','Stadium','Home_or_Away','Win_Draw_Loss']
+
+@st.cache_data
+def demo_data():
+    # Fechas mínimas para que se vea algo
+    calls = pd.DataFrame({
+        "llamado_fecha": pd.to_datetime([
+            "2024-03-02","2024-03-02","2024-03-03",
+            "2024-03-09","2024-03-10","2024-03-10",
+            "2024-03-16"
+        ]).date
+    })
+
+    matches = pd.DataFrame({
+        "Date": pd.to_datetime([
+            "2024-03-02","2024-03-10","2024-03-16"
+        ]).date,
+        "Tournament": ["LPF","LPF","LPF"],
+        "Instance": ["Liga","Liga","Liga"],
+        "Rival": ["River","Racing","San Lorenzo"],
+        "Boca_Goals": [1,2,0],
+        "Rival_Goals": [1,0,1],
+        "Result": ["D","W","L"],
+        "Stadium": ["Monu","Bombonera","SL"],
+        "Home_or_Away": ["A","H","A"],
+        "Win_Draw_Loss": ["Draw","Win","Loss"]
+    })
+    return calls, matches
+
+def parse_matches_df(df_xlsx):
+    """
+    Autodetecta si el Excel viene:
+    - ya tabulado (>=10 columnas) -> renombra columnas si cuadran
+    - como una sola columna con comas -> hace split
+    """
+    # Quitar filas completamente vacías
+    df_xlsx = df_xlsx.dropna(how="all")
+    # Si ya viene con varias columnas y cabeceado reconocible
+    if df_xlsx.shape[1] >= 10:
+        df = df_xlsx.copy()
+        # intenta alinear nombres si no coinciden
+        if len(df.columns) >= 10:
+            df = df.iloc[0:].copy()
+            df = df.iloc[:, :10]
+            df.columns = EXPECTED_MATCH_COLS
+        else:
+            # fallback: fuerza nombres para primeras 10 cols
+            cols = df.columns.tolist()[:10]
+            df = df[cols]
+            df.columns = EXPECTED_MATCH_COLS
+        return df
+
+    # Caso “una sola col con comas”
+    # si la primera fila es encabezado "raro", salteala y usa desde la segunda
+    if df_xlsx.shape[1] == 1:
+        # decidir si saltear primera fila: si contiene comas y parece header
+        series = df_xlsx.iloc[:,0].astype(str)
+        # si la primera fila NO parece datos (pocas comas), la saltamos
+        start_idx = 1 if series.iloc[0].count(",") < 3 else 0
+        df = df_xlsx.iloc[start_idx:].copy()
+        df = df.iloc[:,0].astype(str).str.split(",", expand=True)
+        if df.shape[1] < 10:
+            # si no hay 10 columnas, no se puede parsear así
+            raise ValueError("El Excel de partidos no tiene el formato esperado.")
+        df = df.iloc[:, :10]
+        df.columns = EXPECTED_MATCH_COLS
+        return df
+
+    raise ValueError("Formato de Excel no reconocido. Sube un .xlsx válido.")
+
 @st.cache_data
 def load_data(calls_file, matches_file):
     # CSV con posible encoding latino
     df_calls = pd.read_csv(calls_file, encoding="latin1", encoding_errors="ignore")
 
-    # Excel de partidos
-    df_matches_xlsx = pd.read_excel(matches_file, header=None, engine=None)
-    # tu formato: primera fila encabezado “raro”, luego 1 columna con texto separado por comas
-    df_matches = df_matches_xlsx.iloc[1:].copy()
-    df_matches = df_matches[0].astype(str).str.split(",", expand=True)
-    df_matches.columns = ['Date','Tournament','Instance','Rival','Boca_Goals',
-                          'Rival_Goals','Result','Stadium','Home_or_Away','Win_Draw_Loss']
+    # Excel de partidos (forzar openpyxl en muchos entornos)
+    df_matches_xlsx = pd.read_excel(matches_file, engine="openpyxl", header=None)
+    df_matches = parse_matches_df(df_matches_xlsx)
+
     return df_calls, df_matches
 
 @st.cache_data
 def preprocess_dates(df_calls, df_matches):
+    # Normalización y limpieza
+    if "llamado_fecha" not in df_calls.columns:
+        # intenta inferir si viene como 'fecha' o similar
+        for cand in ["fecha", "date", "Fecha", "LLAMADO_FECHA"]:
+            if cand in df_calls.columns:
+                df_calls = df_calls.rename(columns={cand: "llamado_fecha"})
+                break
     df_calls['llamado_fecha'] = pd.to_datetime(df_calls['llamado_fecha'], errors="coerce").dt.date
     df_matches['Date'] = pd.to_datetime(df_matches['Date'], errors="coerce").dt.date
     df_calls = df_calls.dropna(subset=['llamado_fecha'])
@@ -33,7 +108,7 @@ def merge_data(df_calls, df_matches):
 @st.cache_data
 def analyze_calls(df_calls, df_merged, df_matches):
     s = pd.to_datetime(df_calls['llamado_fecha'])
-    df_calls = df_calls.assign(weekday=s.dt.dayofweek)
+    df_calls = df_calls.assign(weekday=pd.to_datetime(df_calls['llamado_fecha']).weekday)
     df_weekends = df_calls[df_calls['weekday'].isin([5, 6])].copy()
 
     boca_dates = pd.Series(df_matches['Date'].unique())
@@ -72,17 +147,28 @@ def visualize_data(df_calls, df_matches):
 
 def main():
     st.title("Llamados Línea 137 vs Partidos de Boca — 2024")
-    st.write("Subí **ambos** archivos para continuar:")
 
-    calls_file = st.file_uploader("CSV de llamados (Argentina 2024)", type=["csv"])
-    matches_file = st.file_uploader("Excel de partidos de Boca (.xlsx)", type=["xlsx"])
+    use_demo = st.toggle("Usar datos de ejemplo (sin subir archivos)", value=True)
 
-    if not calls_file or not matches_file:
-        st.info("Esperando ambos archivos…")
-        return
+    calls_file = None
+    matches_file = None
+    df_calls = None
+    df_matches = None
+
+    if not use_demo:
+        st.write("Subí **ambos** archivos para continuar:")
+        calls_file = st.file_uploader("CSV de llamados (Argentina 2024)", type=["csv"])
+        matches_file = st.file_uploader("Excel de partidos de Boca (.xlsx)", type=["xlsx"])
 
     try:
-        df_calls, df_matches = load_data(calls_file, matches_file)
+        if use_demo:
+            df_calls, df_matches = demo_data()
+        else:
+            if not calls_file or not matches_file:
+                st.info("Esperando ambos archivos… o activa 'Usar datos de ejemplo'.")
+                return
+            df_calls, df_matches = load_data(calls_file, matches_file)
+
         df_calls, df_matches = preprocess_dates(df_calls, df_matches)
         df_merged = merge_data(df_calls, df_matches)
         results = analyze_calls(df_calls, df_merged, df_matches)
@@ -114,5 +200,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
-
