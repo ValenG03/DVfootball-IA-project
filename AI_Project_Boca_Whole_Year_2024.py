@@ -10,7 +10,7 @@ def load_data(calls_file, matches_file):
     df_calls = pd.read_csv(calls_file, encoding="latin1", encoding_errors="ignore")
 
     # Excel de partidos
-    df_matches_xlsx = pd.read_excel(matches_file, header=None, engine="openpyxl")
+    df_matches_xlsx = pd.read_excel(matches_file, header=None, engine=None)
     # tu formato: primera fila encabezado “raro”, luego 1 columna con texto separado por comas
     df_matches = df_matches_xlsx.iloc[1:].copy()
     df_matches = df_matches[0].astype(str).str.split(",", expand=True)
@@ -114,3 +114,5 @@ def main():
 
 if __name__ == "__main__":
     main()
+
+
