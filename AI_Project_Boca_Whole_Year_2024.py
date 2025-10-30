@@ -9,14 +9,21 @@ def load_data(calls_file, matches_file):
     # CSV con posible encoding latino
     df_calls = pd.read_csv(calls_file, encoding="latin1", encoding_errors="ignore")
 
-    # Excel de partidos
-    df_matches_xlsx = pd.read_excel(matches_file, header=None, engine="openpyxl")
-    # tu formato: primera fila encabezado “raro”, luego 1 columna con texto separado por comas
-    df_matches = df_matches_xlsx.iloc[1:].copy()
+    # Detectar por extensión
+    name = getattr(matches_file, "name", "")
+    if name.lower().endswith(".csv"):
+        df_matches_raw = pd.read_csv(matches_file, header=None, encoding="latin1", encoding_errors="ignore")
+    else:
+        # Excel de partidos (solo si es .xlsx)
+        df_matches_raw = pd.read_excel(matches_file, header=None, engine="openpyxl")
+
+    # tu formato: primera fila encabezado “raro”, luego 1 col con texto separado por comas
+    df_matches = df_matches_raw.iloc[1:].copy()
     df_matches = df_matches[0].astype(str).str.split(",", expand=True)
     df_matches.columns = ['Date','Tournament','Instance','Rival','Boca_Goals',
                           'Rival_Goals','Result','Stadium','Home_or_Away','Win_Draw_Loss']
     return df_calls, df_matches
+
 
 @st.cache_data
 def preprocess_dates(df_calls, df_matches):
@@ -115,5 +122,6 @@ def main():
 if __name__ == "__main__":
     main()
 
+matches_file = st.file_uploader("Partidos de Boca (.xlsx o .csv)", type=["xlsx", "csv"])
 
 
