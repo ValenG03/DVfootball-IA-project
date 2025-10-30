@@ -134,8 +134,8 @@ def merge_data(df_calls: pd.DataFrame, df_matches: pd.DataFrame) -> pd.DataFrame
 
 @st.cache_data
 def analyze_calls(df_calls: pd.DataFrame, df_merged: pd.DataFrame, df_matches: pd.DataFrame):
-    s = pd.to_datetime(df_calls['llamado_fecha'], errors="coerce")
-    df_calls = df_calls.assign(weekday=s.dt.weekday)
+    # Convertir fechas y calcular día de la semana
+    df_calls['weekday'] = pd.to_datetime(df_calls['llamado_fecha'], errors='coerce').dt.weekday
     df_weekends = df_calls[df_calls['weekday'].isin([5, 6])].copy()
 
     boca_dates = pd.to_datetime(df_matches['Date'], errors="coerce").dt.date.unique()
@@ -159,6 +159,7 @@ def analyze_calls(df_calls: pd.DataFrame, df_merged: pd.DataFrame, df_matches: p
         "num_boca_not_playing_weekend_days": int(num_boca_not_playing_weekend_days),
         "avg_calls_boca_not_playing_weekend": float(avg_calls_boca_not_playing_weekend)
     }
+
 
 # -----------------------------
 # Visualizaciones
