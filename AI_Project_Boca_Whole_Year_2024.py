@@ -1,35 +1,59 @@
 import streamlit as st
 import pandas as pd
+import numpy as np
 import matplotlib.pyplot as plt
 from io import BytesIO
+from datetime import date
 
-# -----------------------------
-# Configuración básica
-# -----------------------------
-st.set_page_config(page_title="DV vs Boca", layout="wide")
+# =============================
+# Configuración
+# =============================
+st.set_page_config(page_title="DV vs Boca — 2024", layout="wide")
 
 EXPECTED_MATCH_COLS = [
-    'Date','Tournament','Instance','Rival','Boca_Goals',
-    'Rival_Goals','Result','Stadium','Home_or_Away','Win_Draw_Loss'
+    "Date","Tournament","Instance","Rival","Boca_Goals",
+    "Rival_Goals","Result","Stadium","Home_or_Away","Win_Draw_Loss"
 ]
 
-# -----------------------------
-# Datos de demo (rápido para previsualizar)
-# -----------------------------
+LOCAL_CALLS_PATH = "/mnt/data/llamados-violencia-familiar-202407-Argentina.csv"
+LOCAL_MATCHES_PATH = "/mnt/data/Boca_2024_Whole_Year.csv.xlsx"
+
+# =============================
+# Utilitarios
+# =============================
+def _to_date(series):
+    return pd.to_datetime(series, errors="coerce").dt.date
+
+def _num(x):
+    return pd.to_numeric(x, errors="coerce")
+
+def _title(s):
+    return s.strip().title() if isinstance(s, str) else s
+
+def _upper(s):
+    return s.strip().upper() if isinstance(s, str) else s
+
+def _exists_local_files():
+    try:
+        with open(LOCAL_CALLS_PATH, "rb"): ...
+        with open(LOCAL_MATCHES_PATH, "rb"): ...
+        return True
+    except Exception:
+        return False
+
+# =============================
+# Datos de ejemplo para vista previa rápida
+# =============================
 @st.cache_data
 def demo_data():
     calls = pd.DataFrame({
-        "llamado_fecha": pd.to_datetime([
+        "llamado_fecha": _to_date([
             "2024-03-02","2024-03-02","2024-03-03",
-            "2024-03-09","2024-03-10","2024-03-10",
-            "2024-03-16"
-        ], errors="coerce").dt.date
+            "2024-03-09","2024-03-10","2024-03-10","2024-03-16"
+        ])
     })
-
     matches = pd.DataFrame({
-        "Date": pd.to_datetime([
-            "2024-03-02","2024-03-10","2024-03-16"
-        ], errors="coerce").dt.date,
+        "Date": _to_date(["2024-03-02","2024-03-10","2024-03-16"]),
         "Tournament": ["LPF","LPF","LPF"],
         "Instance": ["Liga","Liga","Liga"],
         "Rival": ["River","Racing","San Lorenzo"],
@@ -38,23 +62,19 @@ def demo_data():
         "Result": ["D","W","L"],
         "Stadium": ["Monumental","Bombonera","Pedro Bidegain"],
         "Home_or_Away": ["A","H","A"],
-        "Win_Draw_Loss": ["Draw","Win","Loss"]
+        "Win_Draw_Loss": ["Draw","Win","Loss"],
     })
     return calls, matches
 
-# -----------------------------
-# Parsing flexible del Excel de Partidos
-# -----------------------------
+# =============================
+# Parsing flexible de Excel de Partidos
+# =============================
 @st.cache_data
 def parse_matches_df(df_xlsx: pd.DataFrame) -> pd.DataFrame:
-    """
-    Autodetecta si el Excel viene:
-    - ya tabulado (>=10 columnas) -> renombra columnas
-    - como una sola columna con comas -> hace split
-    """
+    """Acepta planilla tabulada (>=10 cols) o 1 sola col separada por coma."""
     df_xlsx = df_xlsx.dropna(how="all")
 
-    # Caso con múltiples columnas: usamos las primeras 10 y renombramos
+    # Caso planilla con múltiples columnas
     if df_xlsx.shape[1] >= 10:
         df = df_xlsx.iloc[:, :10].copy()
         df.columns = EXPECTED_MATCH_COLS
@@ -66,190 +86,352 @@ def parse_matches_df(df_xlsx: pd.DataFrame) -> pd.DataFrame:
         start_idx = 1 if series.iloc[0].count(",") < 3 else 0
         df = df_xlsx.iloc[start_idx:, 0].astype(str).str.split(",", expand=True)
         if df.shape[1] < 10:
-            raise ValueError("El Excel de partidos no tiene el formato esperado.")
+            raise ValueError("El Excel de partidos no tiene el formato esperado (menos de 10 campos).")
         df = df.iloc[:, :10]
         df.columns = EXPECTED_MATCH_COLS
         return df
 
     raise ValueError("Formato de Excel no reconocido. Sube un .xlsx válido.")
 
-# -----------------------------
+# =============================
 # Carga de archivos
-# -----------------------------
+# =============================
 @st.cache_data
-def load_data(calls_file, matches_file):
-    # CSV de llamados con tolerancia de encoding
+def load_uploaded(calls_file, matches_file):
     df_calls = pd.read_csv(calls_file, encoding="latin1", encoding_errors="ignore")
-
-    # Intento 1: Excel con encabezado normal
     try:
         raw = pd.read_excel(matches_file, engine="openpyxl")
     except Exception:
         raw = pd.read_excel(matches_file, engine="openpyxl", header=None)
 
-    # Si parece tener encabezado correcto y >=10 columnas, normalizamos nombres
     if raw.shape[1] >= 10 and any(col in set(raw.columns.astype(str)) for col in ["Date","Rival","Boca_Goals"]):
         raw = raw.iloc[:, :10].copy()
         raw.columns = EXPECTED_MATCH_COLS
         df_matches = raw
     else:
-        # Usamos parser robusto (también cubre header=None)
         df_matches = parse_matches_df(raw)
 
     return df_calls, df_matches
 
-# -----------------------------
-# Preprocesamiento de fechas
-# -----------------------------
 @st.cache_data
-def preprocess_dates(df_calls: pd.DataFrame, df_matches: pd.DataFrame):
-    # Detectar columna de fecha en llamados
-    if "llamado_fecha" not in df_calls.columns:
-        for cand in ["fecha", "date", "Fecha", "LLAMADO_FECHA"]:
-            if cand in df_calls.columns:
-                df_calls = df_calls.rename(columns={cand: "llamado_fecha"})
-                break
-    df_calls["llamado_fecha"] = pd.to_datetime(df_calls["llamado_fecha"], errors="coerce").dt.date
+def load_local_defaults():
+    df_calls = pd.read_csv(LOCAL_CALLS_PATH, encoding="latin1", encoding_errors="ignore")
+    try:
+        raw = pd.read_excel(LOCAL_MATCHES_PATH, engine="openpyxl")
+    except Exception:
+        raw = pd.read_excel(LOCAL_MATCHES_PATH, engine="openpyxl", header=None)
 
-    # Fechas en partidos
-    df_matches["Date"] = pd.to_datetime(df_matches["Date"], errors="coerce").dt.date
-
-    # Limpieza de nulos
-    df_calls = df_calls.dropna(subset=["llamado_fecha"]).copy()
-    df_matches = df_matches.dropna(subset=["Date"]).copy()
-
-    # Tipos numéricos básicos
-    for c in ["Boca_Goals", "Rival_Goals"]:
-        if c in df_matches.columns:
-            df_matches[c] = pd.to_numeric(df_matches[c], errors="coerce")
+    if raw.shape[1] >= 10 and any(col in set(raw.columns.astype(str)) for col in ["Date","Rival","Boca_Goals"]):
+        raw = raw.iloc[:, :10].copy()
+        raw.columns = EXPECTED_MATCH_COLS
+        df_matches = raw
+    else:
+        df_matches = parse_matches_df(raw)
 
     return df_calls, df_matches
 
-# -----------------------------
-# Merge + métricas
-# -----------------------------
+# =============================
+# Limpieza y normalización
+# =============================
 @st.cache_data
-def merge_data(df_calls: pd.DataFrame, df_matches: pd.DataFrame) -> pd.DataFrame:
-    return pd.merge(df_calls, df_matches, left_on='llamado_fecha', right_on='Date', how='inner')
+def preprocess(df_calls: pd.DataFrame, df_matches: pd.DataFrame):
+    # --- llamados ---
+    if "llamado_fecha" not in df_calls.columns:
+        for cand in ["fecha","date","Fecha","LLAMADO_FECHA"]:
+            if cand in df_calls.columns:
+                df_calls = df_calls.rename(columns={cand: "llamado_fecha"})
+                break
+    if "llamado_fecha" not in df_calls.columns:
+        raise ValueError("No se encontró la columna de fecha en el CSV de llamados (p. ej. 'llamado_fecha').")
+
+    df_calls["llamado_fecha"] = _to_date(df_calls["llamado_fecha"])
+    df_calls = df_calls.dropna(subset=["llamado_fecha"]).copy()
+
+    # --- partidos ---
+    # Asegurar columnas mínimas
+    missing = [c for c in EXPECTED_MATCH_COLS if c not in df_matches.columns]
+    if missing:
+        raise ValueError(f"Al Excel de partidos le faltan columnas: {missing}")
+
+    df_matches = df_matches.copy()
+    df_matches["Date"] = _to_date(df_matches["Date"])
+    df_matches = df_matches.dropna(subset=["Date"])
+
+    # Tipos y normalización
+    for c in ["Boca_Goals","Rival_Goals"]:
+        df_matches[c] = _num(df_matches[c])
+
+    # Normalizar textos clave
+    if "Win_Draw_Loss" in df_matches.columns:
+        df_matches["Win_Draw_Loss"] = df_matches["Win_Draw_Loss"].map(lambda s: s.strip().title() if isinstance(s, str) else s)
+
+    if "Result" in df_matches.columns:
+        # Asegurar en {W,D,L} si viene mezclado
+        mapping = {
+            "WIN":"W","W":"W","GANÓ":"W","GANO":"W","GANA":"W",
+            "DRAW":"D","D":"D","EMPATE":"D",
+            "LOSS":"L","L":"L","PERDIÓ":"L","PERDIO":"L","PIERDE":"L"
+        }
+        df_matches["Result"] = df_matches["Result"].map(lambda s: mapping.get(_upper(s), s) if isinstance(s, str) else s)
+
+    # Orden sugerido (opcional)
+    df_matches = df_matches.sort_values("Date").reset_index(drop=True)
+
+    return df_calls, df_matches
+
+# =============================
+# Métricas y análisis
+# =============================
+@st.cache_data
+def merge_same_day(df_calls, df_matches):
+    return pd.merge(df_calls, df_matches, left_on="llamado_fecha", right_on="Date", how="inner")
 
 @st.cache_data
-def analyze_calls(df_calls: pd.DataFrame, df_merged: pd.DataFrame, df_matches: pd.DataFrame):
-    # Convertir fechas y calcular día de la semana
-    df_calls['weekday'] = pd.to_datetime(df_calls['llamado_fecha'], errors='coerce').dt.weekday
-    df_weekends = df_calls[df_calls['weekday'].isin([5, 6])].copy()
+def weekend_mask(dates):
+    # Sábado(5) o Domingo(6)
+    w = pd.to_datetime(dates, errors="coerce").dt.weekday
+    return w.isin([5, 6])
 
-    boca_dates = pd.to_datetime(df_matches['Date'], errors="coerce").dt.date.unique()
-    calls_dates = pd.to_datetime(df_weekends['llamado_fecha'], errors="coerce").dt.date
-    df_weekends_no_boca = df_weekends[~calls_dates.isin(boca_dates)].copy()
+@st.cache_data
+def analyze_basics(df_calls, df_matches):
+    # Serie de llamados por día (conteo de filas)
+    calls_per_day = df_calls.groupby("llamado_fecha").size().rename("calls")
+    calls_per_day = calls_per_day.sort_index()
 
-    num_calls_boca_playing = len(df_merged)
-    num_calls_boca_not_playing_weekend = len(df_weekends_no_boca)
+    # Partidos por día
+    matches_by_day = df_matches.groupby("Date").size().rename("matches")
 
-    num_boca_playing_weekend_days = df_merged['llamado_fecha'].nunique()
-    num_boca_not_playing_weekend_days = df_weekends_no_boca['llamado_fecha'].nunique()
+    # Alinear índices por unión (todos los días con llamados)
+    full_idx = calls_per_day.index
+    plays_mask = pd.Series(False, index=full_idx)
+    plays_mask.loc[full_idx.intersection(matches_by_day.index)] = True
 
-    avg_calls_boca_playing_weekend = (num_calls_boca_playing / num_boca_playing_weekend_days) if num_boca_playing_weekend_days else 0
-    avg_calls_boca_not_playing_weekend = (num_calls_boca_not_playing_weekend / num_boca_not_playing_weekend_days) if num_boca_not_playing_weekend_days else 0
+    # Fines de semana
+    wknd_mask = weekend_mask(full_idx)
+
+    # Promedios (finde) con y sin Boca
+    calls_on_wknd = calls_per_day[wknd_mask]
+    plays_on_wknd = plays_mask[wknd_mask]
+    avg_calls_boca = calls_on_wknd[plays_on_wknd].mean() if (plays_on_wknd.sum() > 0) else np.nan
+    avg_calls_no_boca = calls_on_wknd[~plays_on_wknd].mean() if ((~plays_on_wknd).sum() > 0) else np.nan
+
+    # Conteos
+    num_calls_boca_playing = int(calls_on_wknd[plays_on_wknd].sum()) if plays_on_wknd.any() else 0
+    num_calls_no_boca = int(calls_on_wknd[~plays_on_wknd].sum()) if (~plays_on_wknd).any() else 0
+    days_boca = int(plays_on_wknd.sum())
+    days_no_boca = int((~plays_on_wknd).sum())
+
+    # Desglose por resultado (solo en días de partido)
+    merged = merge_same_day(df_calls, df_matches)
+    by_result = merged.groupby("Result").size().to_dict()
+    by_result = {k: int(v) for k, v in by_result.items()}
 
     return {
-        "num_calls_boca_playing": int(num_calls_boca_playing),
-        "num_boca_playing_weekend_days": int(num_boca_playing_weekend_days),
-        "avg_calls_boca_playing_weekend": float(avg_calls_boca_playing_weekend),
-        "num_calls_boca_not_playing_weekend": int(num_calls_boca_not_playing_weekend),
-        "num_boca_not_playing_weekend_days": int(num_boca_not_playing_weekend_days),
-        "avg_calls_boca_not_playing_weekend": float(avg_calls_boca_not_playing_weekend)
+        "calls_per_day": calls_per_day,
+        "plays_mask": plays_mask,
+        "wknd_mask": wknd_mask,
+        "avg_calls_boca_wknd": float(avg_calls_boca) if pd.notna(avg_calls_boca) else 0.0,
+        "avg_calls_no_boca_wknd": float(avg_calls_no_boca) if pd.notna(avg_calls_no_boca) else 0.0,
+        "num_calls_boca_playing_wknd": num_calls_boca_playing,
+        "num_calls_no_boca_wknd": num_calls_no_boca,
+        "days_boca_wknd": days_boca,
+        "days_no_boca_wknd": days_no_boca,
+        "by_result_calls": by_result,
+        "merged_same_day": merged
     }
 
-
-# -----------------------------
-# Visualizaciones
-# -----------------------------
 @st.cache_data
-def build_figures(df_calls: pd.DataFrame, df_matches: pd.DataFrame):
-    fig1, ax1 = plt.subplots(figsize=(12, 4))
-    calls_per_day = df_calls.groupby('llamado_fecha').size()
-    ax1.plot(calls_per_day.index, calls_per_day.values)
-    ax1.set_title('Llamados por día')
-    ax1.set_xlabel('Fecha'); ax1.set_ylabel('N° llamados'); ax1.grid(True)
+def welch_t_test(sample_a: pd.Series, sample_b: pd.Series):
+    """t-test (Welch) simple sin SciPy; devuelve t y gl aproximados."""
+    a = pd.to_numeric(sample_a, errors="coerce").dropna().astype(float)
+    b = pd.to_numeric(sample_b, errors="coerce").dropna().astype(float)
+    if len(a) < 2 or len(b) < 2:
+        return np.nan, np.nan
+    ma, mb = a.mean(), b.mean()
+    va, vb = a.var(ddof=1), b.var(ddof=1)
+    na, nb = len(a), len(b)
+    t = (ma - mb) / np.sqrt(va/na + vb/nb)
+    # gl de Welch–Satterthwaite
+    df = (va/na + vb/nb)**2 / ((va**2)/((na**2)*(na-1)) + (vb**2)/((nb**2)*(nb-1)))
+    return float(t), float(df)
 
-    fig2, ax2 = plt.subplots(figsize=(12, 1.8))
-    ax2.scatter(df_matches['Date'], [1]*len(df_matches), marker='|', s=140)
-    ax2.set_title('Fechas de partidos de Boca')
-    ax2.set_xlabel('Fecha'); ax2.set_yticks([]); ax2.grid(True)
+# =============================
+# Figuras
+# =============================
+def fig_calls_timeseries(calls_per_day, matches_dates):
+    fig, ax = plt.subplots(figsize=(12, 4))
+    ax.plot(calls_per_day.index, calls_per_day.values)
+    ax.set_title("Llamados por día")
+    ax.set_xlabel("Fecha"); ax.set_ylabel("N° de llamados")
+    ax.grid(True, alpha=0.3)
 
-    return fig1, fig2
+    # marcar días con partido
+    y_min, y_max = ax.get_ylim()
+    for d in matches_dates:
+        ax.vlines(d, y_min, y_max, linestyles="dashed", alpha=0.25)
+    ax.set_ylim(y_min, y_max)
+    return fig
 
-# -----------------------------
-# Export utilitario
-# -----------------------------
+def fig_matches_stem(df_matches):
+    fig, ax = plt.subplots(figsize=(12, 1.8))
+    ax.scatter(df_matches["Date"], [1]*len(df_matches), marker="|", s=140)
+    ax.set_title("Fechas de partidos de Boca")
+    ax.set_xlabel("Fecha"); ax.set_yticks([]); ax.grid(True, axis="x", alpha=0.3)
+    return fig
+
+def fig_bars_avgs(avg_a, avg_b, label_a, label_b):
+    fig, ax = plt.subplots(figsize=(6, 3.5))
+    ax.bar([label_a, label_b], [avg_a, avg_b])
+    ax.set_ylabel("Promedio de llamados")
+    ax.set_title("Comparación de promedios (fines de semana)")
+    for i, v in enumerate([avg_a, avg_b]):
+        ax.text(i, v, f"{v:.2f}", ha="center", va="bottom")
+    ax.grid(True, axis="y", alpha=0.3)
+    return fig
+
+# =============================
+# Export
+# =============================
 @st.cache_data
 def to_csv_bytes(df: pd.DataFrame) -> bytes:
-    return df.to_csv(index=False).encode('utf-8')
+    return df.to_csv(index=False).encode("utf-8")
 
-# -----------------------------
-# App principal
-# -----------------------------
+# =============================
+# App
+# =============================
 def main():
     st.title("Llamados Línea 137 vs Partidos de Boca — 2024")
+    st.caption("Comparación simple y clara entre llamados diarios y días de partido. Los cálculos usan coincidencia de **fecha exacta**.")
 
     with st.sidebar:
-        st.header("Datos")
-        use_demo = st.toggle("Usar datos de ejemplo", value=True)
-        st.markdown("Subí **ambos** archivos cuando desactives el modo demo.")
-        calls_file = st.file_uploader("CSV de llamados (Argentina 2024)", type=["csv"], disabled=use_demo)
-        matches_file = st.file_uploader("Excel de partidos (.xlsx)", type=["xlsx"], disabled=use_demo)
+        st.header("Fuentes de datos")
+        mode = st.radio(
+            "Elegí el modo",
+            ["Demo (rápido)","Archivos subidos","Archivos locales (/mnt/data)"],
+            index=0
+        )
 
+        calls_file = None
+        matches_file = None
+
+        if mode == "Archivos subidos":
+            st.markdown("Subí **ambos** archivos.")
+            calls_file = st.file_uploader("CSV de llamados (Argentina 2024)", type=["csv"])
+            matches_file = st.file_uploader("Excel de partidos (.xlsx)", type=["xlsx"])
+        elif mode == "Archivos locales (/mnt/data)":
+            if not _exists_local_files():
+                st.warning("No encontré los archivos locales esperados. Cambiá a *Demo* o *Archivos subidos*.")
+            st.write("Usando rutas locales predefinidas.")
+
+        st.divider()
+        do_ttest = st.toggle("Calcular t-test (Welch) para promedios de findes", value=False)
+        st.caption("Compara promedios de llamados en fines de semana **con** vs **sin** partido (exploratorio).")
+
+    # Carga
     try:
-        if use_demo:
+        if mode == "Demo (rápido)":
             df_calls, df_matches = demo_data()
-        else:
+        elif mode == "Archivos subidos":
             if not calls_file or not matches_file:
-                st.info("Esperando ambos archivos… o activa 'Usar datos de ejemplo'.")
+                st.info("Subí ambos archivos para continuar o cambiá a *Demo*.")
                 st.stop()
-            df_calls, df_matches = load_data(calls_file, matches_file)
+            df_calls, df_matches = load_uploaded(calls_file, matches_file)
+        else:
+            df_calls, df_matches = load_local_defaults()
 
-        df_calls, df_matches = preprocess_dates(df_calls, df_matches)
-        df_merged = merge_data(df_calls, df_matches)
-        results = analyze_calls(df_calls, df_merged, df_matches)
-        fig1, fig2 = build_figures(df_calls, df_matches)
+        # Limpieza / normalización
+        df_calls, df_matches = preprocess(df_calls, df_matches)
 
-        # Métricas
-        st.subheader("Resultados")
+        # Análisis básico
+        basic = analyze_basics(df_calls, df_matches)
+
+        # ====== Métricas principales ======
+        st.subheader("Resultados (fines de semana)")
         c1, c2, c3 = st.columns(3)
-        c1.metric("Llamados en días con Boca (finde)", results["num_calls_boca_playing"]) 
-        c2.metric("Días con Boca (finde) únicos", results["num_boca_playing_weekend_days"]) 
-        c3.metric("Promedio llamados (con Boca)", f"{results['avg_calls_boca_playing_weekend']:.2f}")
+        c1.metric("Llamados en días con Boca", basic["num_calls_boca_playing_wknd"])
+        c2.metric("Días con Boca (únicos)", basic["days_boca_wknd"])
+        c3.metric("Promedio con Boca", f"{basic['avg_calls_boca_wknd']:.2f}")
 
         c4, c5, c6 = st.columns(3)
-        c4.metric("Llamados en días sin Boca (finde)", results["num_calls_boca_not_playing_weekend"]) 
-        c5.metric("Días sin Boca (finde) únicos", results["num_boca_not_playing_weekend_days"]) 
-        c6.metric("Promedio llamados (sin Boca)", f"{results['avg_calls_boca_not_playing_weekend']:.2f}")
+        c4.metric("Llamados en días sin Boca", basic["num_calls_no_boca_wknd"])
+        c5.metric("Días sin Boca (únicos)", basic["days_no_boca_wknd"])
+        c6.metric("Promedio sin Boca", f"{basic['avg_calls_no_boca_wknd']:.2f}")
 
-        # Gráficos
-        st.subheader("Vistas rápidas")
-        st.pyplot(fig1)
-        st.pyplot(fig2)
+        # Comparación visual de promedios
+        st.pyplot(fig_bars_avgs(
+            basic["avg_calls_boca_wknd"],
+            basic["avg_calls_no_boca_wknd"],
+            "Con partido",
+            "Sin partido"
+        ))
 
-        # Tablas
-        st.subheader("Muestras")
-        st.write("**Llamados**")
-        st.dataframe(df_calls.head(30), use_container_width=True)
-        st.write("**Partidos (parseados)**")
-        st.dataframe(df_matches.head(30), use_container_width=True)
+        # t-test (opcional, exploratorio)
+        if do_ttest:
+            # construir muestras diarias (finde)
+            calls = basic["calls_per_day"]
+            wknd_mask = basic["wknd_mask"]
+            plays = basic["plays_mask"]
 
-        # Descarga de merge
-        if not df_merged.empty:
-            st.subheader("Descargar cruce de datos")
+            sample_with = calls[wknd_mask & plays]
+            sample_without = calls[wknd_mask & (~plays)]
+
+            t, df_approx = welch_t_test(sample_with, sample_without)
+            st.info(
+                "t-test de Welch (exploratorio): "
+                f"t ≈ {t:.3f} | gl ≈ {df_approx:.1f}  \n"
+                "Nota: sin p-valor (no usamos librerías externas). Interpretar con cautela."
+            )
+
+        # ====== Gráficos de contexto ======
+        st.subheader("Evolución y calendario")
+        st.pyplot(fig_calls_timeseries(basic["calls_per_day"], df_matches["Date"]))
+        st.pyplot(fig_matches_stem(df_matches))
+
+        # ====== Desglose adicional ======
+        st.subheader("Cruces y ejemplos")
+        colA, colB = st.columns(2)
+        with colA:
+            st.write("**Llamados (primeras 30 filas)**")
+            st.dataframe(df_calls.head(30), use_container_width=True)
+        with colB:
+            st.write("**Partidos parseados (primeras 30 filas)**")
+            st.dataframe(df_matches.head(30), use_container_width=True)
+
+        merged = basic["merged_same_day"]
+        st.write("**Cruce: llamados en días con partido (todas las filas que coinciden en fecha)**")
+        if merged.empty:
+            st.warning("No hay coincidencias exactas de fecha entre llamados y partidos.")
+        else:
+            st.dataframe(merged, use_container_width=True, height=300)
             st.download_button(
-                label="Descargar CSV de llamados en días con partido",
-                data=to_csv_bytes(df_merged),
+                "Descargar CSV del cruce",
+                data=to_csv_bytes(merged),
                 file_name="llamados_boca_merge.csv",
-                mime="text/csv",
+                mime="text/csv"
+            )
+
+        # Resumen por resultado
+        if basic["by_result_calls"]:
+            st.write("**Llamados en días con partido, agrupados por resultado (W/D/L):**")
+            res_tbl = pd.DataFrame(
+                [{"Resultado": k, "Llamados (filas)": v} for k, v in sorted(basic["by_result_calls"].items())]
+            )
+            st.dataframe(res_tbl, use_container_width=True)
+
+        # Nota metodológica
+        with st.expander("Notas metodológicas"):
+            st.markdown(
+                """
+- El cruce se hace por **fecha exacta** (formato fecha, sin hora).  
+- Los **promedios** se calculan solo con **sábados y domingos**.  
+- Si un día tiene múltiples filas de llamados, cada fila cuenta como 1 llamado (conteo de registros).  
+- Normalizamos *Result* a {W, D, L} y *Win_Draw_Loss* a {Win, Draw, Loss} si vienen en otros idiomas/formatos.
+- Los resultados son **descriptivos**; cualquier causalidad requiere controles adicionales y más variables.
+                """
             )
 
     except Exception as e:
         st.error(f"Error al procesar archivos: {e}")
-
 
 if __name__ == "__main__":
     main()
