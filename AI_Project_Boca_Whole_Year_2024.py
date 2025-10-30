@@ -104,15 +104,17 @@ def preprocess_dates(df_calls, df_matches):
 @st.cache_data
 def merge_data(df_calls, df_matches):
     return pd.merge(df_calls, df_matches, left_on='llamado_fecha', right_on='Date', how='inner')
-
 @st.cache_data
 def analyze_calls(df_calls, df_merged, df_matches):
+    # calcular weekday correctamente
     s = pd.to_datetime(df_calls['llamado_fecha'])
-    df_calls = df_calls.assign(weekday=pd.to_datetime(df_calls['llamado_fecha']).weekday)
+    df_calls = df_calls.assign(weekday=s.dt.weekday)  # <-- el fix está acá
     df_weekends = df_calls[df_calls['weekday'].isin([5, 6])].copy()
 
-    boca_dates = pd.Series(df_matches['Date'].unique())
-    df_weekends_no_boca = df_weekends[~pd.to_datetime(df_weekends['llamado_fecha']).dt.date.isin(boca_dates)].copy()
+    # normalizo tipos de fecha para el isin
+    boca_dates = pd.to_datetime(df_matches['Date']).dt.date.unique()
+    calls_dates = pd.to_datetime(df_weekends['llamado_fecha']).dt.date
+    df_weekends_no_boca = df_weekends[~calls_dates.isin(boca_dates)].copy()
 
     num_calls_boca_playing = len(df_merged)
     num_calls_boca_not_playing_weekend = len(df_weekends_no_boca)
@@ -131,6 +133,7 @@ def analyze_calls(df_calls, df_merged, df_matches):
         "num_boca_not_playing_weekend_days": num_boca_not_playing_weekend_days,
         "avg_calls_boca_not_playing_weekend": avg_calls_boca_not_playing_weekend
     }
+
 
 def visualize_data(df_calls, df_matches):
     fig1, ax1 = plt.subplots(figsize=(12, 4))
