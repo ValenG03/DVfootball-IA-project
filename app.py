@@ -18,8 +18,8 @@ los **llamados policiales por violencia doméstica** en los mismos días de part
 # -----------------------------
 @st.cache_data
 def load_data():
-    df_matches = pd.read_excel("Boca_2024_Whole_Year.csv.xlsx")
-    df_calls = pd.read_csv("llamados-violencia-familiar-202407-Argentina.csv")
+    df_matches = pd.read_excel(""C:\Users\54116\Desktop\Investigating with IA\Boca_2024_Whole_Year.csv"")
+    df_calls = pd.read_csv(""C:\Users\54116\Desktop\Investigating with IA\llamados-violencia-familiar-202407-Argentina.csv"")
     return df_matches, df_calls
 
 try:
