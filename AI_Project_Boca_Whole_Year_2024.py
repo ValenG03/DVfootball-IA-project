@@ -194,9 +194,10 @@ def main():
 
         st.subheader("Muestras")
         st.write("Llamados")
-        st.dataframe(df_calls.head(30), use_container_width=True)
+        st.dataframe(df_calls.head(30), width='stretch')
+        st.dataframe(df_matches.head(30), width='stretch')
         st.write("Partidos (parseados)")
-        st.dataframe(df_matches.head(30), use_container_width=True)
+        
 
     except Exception as e:
         st.error(f"Error al procesar archivos: {e}")
