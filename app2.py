@@ -20,9 +20,9 @@ st.set_page_config(
     layout="wide"
 )
 
-st.title("⚽ Football & Domestic Violence – AMBA 2024")
+st.title("Football & Domestic Violence")
 st.markdown("""
-Very basic demo app that combines:
+Web page that combines:
 
 - **Boca_2024_Whole_Year.csv**
 - **River_Plate_2024_Whole_Year.csv**
