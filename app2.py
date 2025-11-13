@@ -203,3 +203,73 @@ st.caption(
     "(e.g. hour of match vs. hour of calls, lagged effects, controls, etc.)."
 )
 
+import plotly.graph_objects as go  # add this import at the top
+
+
+# -----------------------------
+# 4) QUICK OVERVIEW GRAPHS
+# -----------------------------
+st.subheader("Overview – Matches & DV Calls")
+
+# 1) Boca Juniors results (points over time)
+df_boca_matches = df_matches[df_matches["Team"] == "Boca Juniors"].copy()
+result_map = {"Win": 3, "Draw": 1, "Loss": 0}
+df_boca_matches["Points"] = df_boca_matches["Win_Draw_Loss"].map(result_map)
+df_boca_matches = df_boca_matches.sort_values("Date")
+df_boca_matches["CumPoints"] = df_boca_matches["Points"].cumsum()
+
+st.markdown("**Graph 1 – Boca Juniors results (cumulative points, 2024)**")
+st.line_chart(df_boca_matches.set_index("Date")["CumPoints"])
+
+# 2) River Plate results (points over time)
+df_river_matches = df_matches[df_matches["Team"] == "River Plate"].copy()
+df_river_matches["Points"] = df_river_matches["Win_Draw_Loss"].map(result_map)
+df_river_matches = df_river_matches.sort_values("Date")
+df_river_matches["CumPoints"] = df_river_matches["Points"].cumsum()
+
+st.markdown("**Graph 2 – River Plate results (cumulative points, 2024)**")
+st.line_chart(df_river_matches.set_index("Date")["CumPoints"])
+
+# 3) DV calls in 2024 (AMBA)
+st.markdown("**Graph 3 – Daily domestic violence calls (AMBA, 2024)**")
+st.line_chart(dv_daily.set_index("Date")["dv_calls_AMBA"])
+
+# 4) Combined view – DV calls + match days (interactive)
+st.markdown("**Graph 4 – DV calls with Boca & River match days (interactive)**")
+
+boca_match_days = df_boca_matches.merge(dv_daily, on="Date", how="left")
+river_match_days = df_river_matches.merge(dv_daily, on="Date", how="left")
+
+fig = go.Figure()
+
+# DV calls as bars
+fig.add_trace(go.Bar(
+    x=dv_daily["Date"],
+    y=dv_daily["dv_calls_AMBA"],
+    name="DV calls (AMBA)"
+))
+
+# Boca match markers
+fig.add_trace(go.Scatter(
+    x=boca_match_days["Date"],
+    y=boca_match_days["dv_calls_AMBA"],
+    mode="markers",
+    name="Boca match days",
+))
+
+# River match markers
+fig.add_trace(go.Scatter(
+    x=river_match_days["Date"],
+    y=river_match_days["dv_calls_AMBA"],
+    mode="markers",
+    name="River match days",
+))
+
+fig.update_layout(
+    xaxis_title="Date",
+    yaxis_title="Number of DV calls (AMBA)",
+    hovermode="x unified",
+)
+
+st.plotly_chart(fig, use_container_width=True)
+
