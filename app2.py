@@ -3,6 +3,7 @@ import pandas as pd
 import altair as alt
 from pathlib import Path
 
+# Logos pasted
 col1, col2, col3 = st.columns([1,3,1])
 
 with col1:
