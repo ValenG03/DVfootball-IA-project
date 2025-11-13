@@ -112,6 +112,10 @@ def load_raw_data():
     )
     dv_daily = dv_daily.rename(columns={"llamado_fecha": "Date"})
     dv_daily = dv_daily.sort_values("Date")
+    
+    # Creamos una versión genérica con columna "Calls"
+    df_calls_daily = dv_daily.rename(columns={"dv_calls_AMBA": "Calls"}).copy()
+
 
     # Merge DV with matches on date
     df_matches_dv = pd.merge(
@@ -120,8 +124,8 @@ def load_raw_data():
         on="Date",
         how="left",
     )
-
-    return df_matches, dv_daily, df_matches_dv
+    
+    return df_matches, dv_daily, df_matches_dv, df_calls_daily
 
 
 # Load data once (cached)
@@ -352,50 +356,73 @@ st.altair_chart(combined_chart, use_container_width=True)
 
 st.markdown("## Violence Calls vs Match Results")
 
-# 1) Convert results to numeric effect (-1 = loss, 0 = draw, 1 = win)
-result_map = {"Win": 1, "Draw": 0, "Loss": -1}
-df_matches["ResultNum"] = df_matches["Win_Draw_Loss"].map(result_map)
+# 1) Mapear resultados a -1 / 0 / 1 (incluyendo W/D/L)
+result_num_map = {
+    "Win": 1, "W": 1,
+    "Draw": 0, "D": 0,
+    "Loss": -1, "L": -1
+}
 
-# 2) Merge calls per day with matches per day
+# Normalizar la columna de resultados a string limpio
+df_matches["Win_Draw_Loss"] = df_matches["Win_Draw_Loss"].astype(str).str.strip()
+df_matches["ResultNum"] = df_matches["Win_Draw_Loss"].map(result_num_map)
+
+# 2) Merge: llamadas por día + info de partidos (Boca y River)
 df_merged = df_calls_daily.merge(
     df_matches[["Date", "Team", "ResultNum"]],
     on="Date",
     how="left"
 )
 
-# 3) Create rolling average to smooth noise
-df_merged["Rolling_Calls"] = df_merged["Calls"].rolling(window=3, center=True).mean()
-
-# 4) Create a marker column for plotting
-df_merged["MarkerColor"] = df_merged["ResultNum"].map({
-    1: "green",
-    0: "gray",
-    -1: "red"
-})
+# 3) Promedio móvil para suavizar ruido
+df_merged["Rolling_Calls"] = (
+    df_merged["Calls"]
+    .rolling(window=3, center=True)
+    .mean()
+)
 
 # ------------------------------------------------------
 # LINE GRAPH (Altair)
 # ------------------------------------------------------
 
+# Línea de llamadas diarias
 line_calls = alt.Chart(df_merged).mark_line().encode(
     x="Date:T",
     y="Calls:Q",
-    tooltip=["Date", "Calls"]
+    tooltip=["Date:T", "Calls:Q"]
 )
 
-line_smooth = alt.Chart(df_merged).mark_line(strokeDash=[5,5]).encode(
+# Línea de promedio móvil (discontinua)
+line_smooth = alt.Chart(df_merged).mark_line(strokeDash=[5, 5]).encode(
     x="Date:T",
-    y="Rolling_Calls:Q"
+    y="Rolling_Calls:Q",
+    tooltip=["Date:T", "Rolling_Calls:Q"]
 )
 
-points_matches = alt.Chart(df_merged[df_merged["ResultNum"].notna()]).mark_point(size=120).encode(
-    x="Date:T",
-    y="Calls:Q",
-    color=alt.Color("ResultNum:N", scale=alt.Scale(
-        domain=[1,0,-1],
-        range=["green", "gray", "red"]
-    )),
-    tooltip=["Date", "Team", "ResultNum"]
+# Puntos en los días con partido (colores según resultado)
+points_matches = (
+    alt.Chart(df_merged[df_merged["ResultNum"].notna()])
+    .mark_point(size=120)
+    .encode(
+        x="Date:T",
+        y="Calls:Q",
+        color=alt.Color(
+            "ResultNum:N",
+            scale=alt.Scale(
+                domain=[1, 0, -1],
+                range=["green", "gray", "red"]
+            ),
+            legend=alt.Legend(
+                title="Match Result",
+                labelExpr=(
+                    "datum.value == 1 ? 'Win' : "
+                    "datum.value == 0 ? 'Draw' : 'Loss'"
+                )
+            )
+        ),
+        shape="Team:N",
+        tooltip=["Date:T", "Team:N", "ResultNum:Q", "Calls:Q"]
+    )
 )
 
 graph = (line_calls + line_smooth + points_matches).properties(
