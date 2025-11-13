@@ -10,7 +10,7 @@ with col1:
     st.image("Boca_escudo.png", width=120)
 
 with col2:
-    st.title("⚽ Football & Domestic Violence – AMBA 2024")
+    st.title("Football & Domestic Violence")
 
 with col3:
     st.image("River_logo.png", width=90)
@@ -20,7 +20,7 @@ st.set_page_config(
     layout="wide"
 )
 
-st.title("Football & Domestic Violence")
+st.title("⚽ Football & Domestic Violence – AMBA 2024")
 st.markdown("""
 Web page that combines:
 
