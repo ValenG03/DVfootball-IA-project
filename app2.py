@@ -212,65 +212,110 @@ st.caption(
 # -----------------------------
 st.subheader("Overview – Matches & DV Calls")
 
-# 1) Boca Juniors results (points over time)
-df_boca_matches = df_matches[df_matches["Team"] == "Boca Juniors"].copy()
+# Boca cumulative points
 result_map = {"Win": 3, "Draw": 1, "Loss": 0}
+
+df_boca_matches = (
+    df_matches[df_matches["Team"] == "Boca Juniors"]
+    .copy()
+    .sort_values("Date")
+)
 df_boca_matches["Points"] = df_boca_matches["Win_Draw_Loss"].map(result_map)
-df_boca_matches = df_boca_matches.sort_values("Date")
 df_boca_matches["CumPoints"] = df_boca_matches["Points"].cumsum()
 
-st.markdown("**Graph 1 – Boca Juniors results (cumulative points, 2024)**")
-st.line_chart(df_boca_matches.set_index("Date")["CumPoints"])
+st.markdown("### Graph 1 – Boca Juniors (Cumulative Points)")
 
-# 2) River Plate results (points over time)
-df_river_matches = df_matches[df_matches["Team"] == "River Plate"].copy()
-df_river_matches["Points"] = df_river_matches["Win_Draw_Loss"].map(result_map)
-df_river_matches = df_river_matches.sort_values("Date")
-df_river_matches["CumPoints"] = df_river_matches["Points"].cumsum()
-
-st.markdown("**Graph 2 – River Plate results (cumulative points, 2024)**")
-st.line_chart(df_river_matches.set_index("Date")["CumPoints"])
-
-# 3) DV calls in 2024 (AMBA)
-st.markdown("**Graph 3 – Daily domestic violence calls (AMBA, 2024)**")
-st.line_chart(dv_daily.set_index("Date")["dv_calls_AMBA"])
-
-# 4) Combined view – DV calls + match days (interactive)
-st.markdown("**Graph 4 – DV calls with Boca & River match days (interactive)**")
-
-boca_match_days = df_boca_matches.merge(dv_daily, on="Date", how="left")
-river_match_days = df_river_matches.merge(dv_daily, on="Date", how="left")
-
-fig = go.Figure()
-
-# DV calls as bars
-fig.add_trace(go.Bar(
-    x=dv_daily["Date"],
-    y=dv_daily["dv_calls_AMBA"],
-    name="DV calls (AMBA)"
-))
-
-# Boca match markers
-fig.add_trace(go.Scatter(
-    x=boca_match_days["Date"],
-    y=boca_match_days["dv_calls_AMBA"],
-    mode="markers",
-    name="Boca match days",
-))
-
-# River match markers
-fig.add_trace(go.Scatter(
-    x=river_match_days["Date"],
-    y=river_match_days["dv_calls_AMBA"],
-    mode="markers",
-    name="River match days",
-))
-
-fig.update_layout(
-    xaxis_title="Date",
-    yaxis_title="Number of DV calls (AMBA)",
-    hovermode="x unified",
+chart_boca = (
+    alt.Chart(df_boca_matches)
+    .mark_line(point=True)
+    .encode(
+        x="Date:T",
+        y="CumPoints:Q",
+        tooltip=["Date", "Opponent", "Win_Draw_Loss", "CumPoints"]
+    )
+    .properties(height=300)
 )
 
-st.plotly_chart(fig, use_container_width=True)
+st.altair_chart(chart_boca, use_container_width=True)
+
+
+
+# River cumulative points
+df_river_matches = (
+    df_matches[df_matches["Team"] == "River Plate"]
+    .copy()
+    .sort_values("Date")
+)
+df_river_matches["Points"] = df_river_matches["Win_Draw_Loss"].map(result_map)
+df_river_matches["CumPoints"] = df_river_matches["Points"].cumsum()
+
+st.markdown("### Graph 2 – River Plate (Cumulative Points)")
+
+chart_river = (
+    alt.Chart(df_river_matches)
+    .mark_line(point=True, color="red")
+    .encode(
+        x="Date:T",
+        y="CumPoints:Q",
+        tooltip=["Date", "Opponent", "Win_Draw_Loss", "CumPoints"]
+    )
+    .properties(height=300)
+)
+
+st.altair_chart(chart_river, use_container_width=True)
+
+
+
+st.markdown("### Graph 3 – Daily DV Calls (AMBA)")
+
+chart_dv = (
+    alt.Chart(dv_daily)
+    .mark_bar()
+    .encode(
+        x="Date:T",
+        y="dv_calls_AMBA:Q",
+        tooltip=["Date", "dv_calls_AMBA"]
+    )
+    .properties(height=300)
+)
+
+st.altair_chart(chart_dv, use_container_width=True)
+
+
+
+st.markdown("### Graph 4 – Combined DV Calls + Boca/River Matches")
+
+dv_chart = (
+    alt.Chart(dv_daily)
+    .mark_bar(color="#7aa6c2")
+    .encode(
+        x="Date:T",
+        y="dv_calls_AMBA:Q",
+        tooltip=["Date", "dv_calls_AMBA"]
+    )
+)
+
+boca_points = (
+    alt.Chart(df_boca_matches)
+    .mark_circle(size=70, color="blue")
+    .encode(
+        x="Date:T",
+        y="dv_calls_AMBA:Q",
+        tooltip=["Date", "Opponent", "Win_Draw_Loss"]
+    )
+)
+
+river_points = (
+    alt.Chart(df_river_matches)
+    .mark_triangle(size=80, color="red")
+    .encode(
+        x="Date:T",
+        y="dv_calls_AMBA:Q",
+        tooltip=["Date", "Opponent", "Win_Draw_Loss"]
+    )
+)
+
+combined_chart = (dv_chart + boca_points + river_points).properties(height=350)
+
+st.altair_chart(combined_chart, use_container_width=True)
 
