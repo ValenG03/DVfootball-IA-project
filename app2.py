@@ -343,3 +343,65 @@ river_points = (
 combined_chart = (dv_chart + boca_points + river_points).properties(height=350)
 
 st.altair_chart(combined_chart, use_container_width=True)
+
+
+
+# ------------------------------------------------------
+# 5) GRAPH – Do DV Calls Rise or Fall When Boca/River Win?
+# ------------------------------------------------------
+
+st.markdown("## Violence Calls vs Match Results")
+
+# 1) Convert results to numeric effect (-1 = loss, 0 = draw, 1 = win)
+result_map = {"Win": 1, "Draw": 0, "Loss": -1}
+df_matches["ResultNum"] = df_matches["Win_Draw_Loss"].map(result_map)
+
+# 2) Merge calls per day with matches per day
+df_merged = df_calls_daily.merge(
+    df_matches[["Date", "Team", "ResultNum"]],
+    on="Date",
+    how="left"
+)
+
+# 3) Create rolling average to smooth noise
+df_merged["Rolling_Calls"] = df_merged["Calls"].rolling(window=3, center=True).mean()
+
+# 4) Create a marker column for plotting
+df_merged["MarkerColor"] = df_merged["ResultNum"].map({
+    1: "green",
+    0: "gray",
+    -1: "red"
+})
+
+# ------------------------------------------------------
+# LINE GRAPH (Altair)
+# ------------------------------------------------------
+
+line_calls = alt.Chart(df_merged).mark_line().encode(
+    x="Date:T",
+    y="Calls:Q",
+    tooltip=["Date", "Calls"]
+)
+
+line_smooth = alt.Chart(df_merged).mark_line(strokeDash=[5,5]).encode(
+    x="Date:T",
+    y="Rolling_Calls:Q"
+)
+
+points_matches = alt.Chart(df_merged[df_merged["ResultNum"].notna()]).mark_point(size=120).encode(
+    x="Date:T",
+    y="Calls:Q",
+    color=alt.Color("ResultNum:N", scale=alt.Scale(
+        domain=[1,0,-1],
+        range=["green", "gray", "red"]
+    )),
+    tooltip=["Date", "Team", "ResultNum"]
+)
+
+graph = (line_calls + line_smooth + points_matches).properties(
+    width=900,
+    height=400,
+    title="Do Violence Calls Increase or Decrease When Boca/River Win or Lose?"
+)
+
+st.altair_chart(graph, use_container_width=True)
