@@ -1,8 +1,11 @@
 import streamlit as st
 import pandas as pd
+from pathlib import Path
 
-st.set_page_config(page_title="Football & Domestic Violence – AMBA 2024",
-                   layout="wide")
+st.set_page_config(
+    page_title="Football & Domestic Violence – AMBA 2024",
+    layout="wide"
+)
 
 st.title("⚽ Football & Domestic Violence – AMBA 2024")
 st.markdown("""
@@ -16,11 +19,13 @@ and matches **daily call counts** with **Boca & River matches**.
 """)
 
 # -----------------------------
-# 1) FILE LOADING (cached)
+# 1) FILE PATHS – same folder as this script
 # -----------------------------
-BOCA_FILE = "Boca_2024_Whole_Year.csv"
-RIVER_FILE = "River_Plate_2024_Whole_Year.csv"
-DV_FILE = "DV-Calls-AMBA.csv"
+BASE_DIR = Path(__file__).parent
+
+BOCA_FILE = BASE_DIR / "Boca_2024_Whole_Year.csv"
+RIVER_FILE = BASE_DIR / "River_Plate_2024_Whole_Year.csv"
+DV_FILE    = BASE_DIR / "DV-Calls-AMBA.csv"
 
 
 @st.cache_data
@@ -30,8 +35,7 @@ def load_raw_data():
     df_river = pd.read_csv(RIVER_FILE)
     df_dv = pd.read_csv(DV_FILE)
 
-    # --- Boca: already has goals, rival, etc. ---
-    # Ensure Date is datetime
+    # -------- Boca --------
     df_boca["Date"] = pd.to_datetime(df_boca["Date"])
     df_boca["Team"] = "Boca Juniors"
     df_boca["Opponent"] = df_boca["Rival"]
@@ -52,17 +56,15 @@ def load_raw_data():
     ]
     df_boca_clean = df_boca[boca_cols]
 
-    # --- River: we need to compute Goals_For / Goals_Against ---
+    # -------- River --------
     df_river["Date"] = pd.to_datetime(df_river["Date"])
 
-    # Split score "4-0" -> home_goals, away_goals
-    # (No list comprehensions as per your usual preference)
+    # Split "Score" like "4-0" → home / away goals
     parts = df_river["Score"].str.split("-", expand=True)
     df_river["Home_Goals"] = pd.to_numeric(parts[0], errors="coerce")
     df_river["Away_Goals"] = pd.to_numeric(parts[1], errors="coerce")
 
-    # Two cases: River as home, River as away
-    # River home
+    # River as home
     river_home = df_river[df_river["Home"] == "River Plate"].copy()
     river_home["Team"] = "River Plate"
     river_home["Opponent"] = river_home["Away"]
@@ -70,7 +72,7 @@ def load_raw_data():
     river_home["Goals_Against"] = river_home["Away_Goals"]
     river_home["Home_or_Away"] = "Home"
 
-    # River away
+    # River as away
     river_away = df_river[df_river["Away"] == "River Plate"].copy()
     river_away["Team"] = "River Plate"
     river_away["Opponent"] = river_away["Home"]
@@ -79,10 +81,8 @@ def load_raw_data():
     river_away["Home_or_Away"] = "Away"
 
     df_river_all = pd.concat([river_home, river_away], ignore_index=True)
-
-    # Build a unified River frame with same columns as Boca
     df_river_all["Competition"] = df_river_all["Competition"]
-    df_river_all["Stadium"] = None  # Not provided in the River CSV
+    df_river_all["Stadium"] = None  # not provided in River CSV
 
     river_cols = [
         "Date",
@@ -97,11 +97,11 @@ def load_raw_data():
     ]
     df_river_clean = df_river_all[river_cols]
 
-    # --- Combine Boca + River into one matches df ---
+    # -------- Combine matches --------
     df_matches = pd.concat([df_boca_clean, df_river_clean], ignore_index=True)
     df_matches = df_matches.sort_values("Date")
 
-    # --- DV calls: aggregate by date ---
+    # -------- DV per day (AMBA) --------
     df_dv["llamado_fecha"] = pd.to_datetime(df_dv["llamado_fecha"])
     dv_daily = (
         df_dv.groupby("llamado_fecha")
@@ -122,6 +122,7 @@ def load_raw_data():
     return df_matches, dv_daily, df_matches_dv
 
 
+# Load data once (cached)
 df_matches, dv_daily, df_matches_dv = load_raw_data()
 
 # -----------------------------
@@ -158,7 +159,10 @@ if selected_view == "Matches + DV calls":
     st.write("Total matches in selection:", len(df_matches_filtered))
 
     total_calls_on_match_days = df_matches_filtered["dv_calls_AMBA"].sum()
-    st.write("Sum of DV calls on those match days (AMBA):", int(total_calls_on_match_days))
+    st.write(
+        "Sum of DV calls on those match days (AMBA):",
+        int(total_calls_on_match_days)
+    )
 
 elif selected_view == "DV daily time series":
     st.subheader("Daily DV calls (AMBA) – Full period")
@@ -177,7 +181,9 @@ elif selected_view == "DV daily time series":
     st.dataframe(dv_daily)
 
 else:  # "Raw data"
-    tab1, tab2, tab3 = st.tabs(["Matches (Boca + River)", "DV calls (daily)", "Matches + DV merged"])
+    tab1, tab2, tab3 = st.tabs(
+        ["Matches (Boca + River)", "DV calls (daily)", "Matches + DV merged"]
+    )
 
     with tab1:
         st.subheader("Raw matches data (Boca + River)")
@@ -192,5 +198,8 @@ else:  # "Raw data"
         st.dataframe(df_matches_dv)
 
 st.markdown("---")
-st.caption("Very simple prototype. For deeper analysis you may need more detailed modelling (e.g. hour of match vs. hour of calls, lagged effects, controls, etc.).")
-m
+st.caption(
+    "Very simple prototype. For deeper analysis you may need more detailed modelling "
+    "(e.g. hour of match vs. hour of calls, lagged effects, controls, etc.)."
+)
+
