@@ -1,7 +1,8 @@
 import streamlit as st
 import pandas as pd
-from pathlib import Path
 import plotly.graph_objects as go
+from pathlib import Path
+
 
 st.set_page_config(
     page_title="Football & Domestic Violence – AMBA 2024",
@@ -203,6 +204,7 @@ st.caption(
     "Very simple prototype. For deeper analysis you may need more detailed modelling "
     "(e.g. hour of match vs. hour of calls, lagged effects, controls, etc.)."
 )
+
 
 
 # -----------------------------
