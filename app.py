@@ -7,7 +7,7 @@ st.title("⚽ Football and Domestic Violence in Argentina (2024)")
 
 st.markdown("""
 This analysis uses **Boca_2024_Whole_Year.csv** and **llamados-violencia-familiar-202407-Argentina.csv**.
-We count the **number of calls per day** (based on `call_date`, originally `llamado_fecha`) and match them to the game dates.
+We count the **number of calls per day** (based on `llamado_fecha`) and match them to the game dates.
 """)
 
 # -----------------------------
@@ -20,6 +20,8 @@ CALLS_FILE = "llamados-violencia-familiar-202407-Argentina.csv"
 def load_data(matches_path, calls_path):
     df_matches = pd.read_csv(matches_path)
     df_calls = pd.read_csv(calls_path)
+
+   df_calls = df_calls.rename(columns={'llamado_fecha': 'call_date'})
     
     # Normalize relevant columns
     # Matches: includes 'Date', 'Boca_Goals', 'Rival_Goals', 'Result', 'Win_Draw_Loss'
