@@ -12,7 +12,7 @@ with col1:
 with col2:
     st.title("Football & Domestic Violence")
 
-with col3:
+with col4:
     st.image("River_logo.png", width=90)
 
 st.set_page_config(
