@@ -206,25 +206,40 @@ st.caption(
 )
 
 
-
 # -----------------------------
 # 4) QUICK OVERVIEW GRAPHS
 # -----------------------------
 st.subheader("Overview – Matches & DV Calls")
 
-# Boca cumulative points
-result_map = {"Win": 3, "Draw": 1, "Loss": 0}
+# Ensure Date is datetime
+df_matches["Date"] = pd.to_datetime(df_matches["Date"], dayfirst=True, errors="coerce")
 
+# Normalize result strings
+df_matches["Win_Draw_Loss"] = df_matches["Win_Draw_Loss"].astype(str).str.strip()
+
+# Check what really exists
+st.write("Teams in df_matches:", df_matches["Team"].unique())
+st.write("Result values:", df_matches["Win_Draw_Loss"].unique())
+
+# Mapping with fallbacks
+result_map = {
+    "Win": 3, "W": 3,
+    "Draw": 1, "D": 1, "Empate": 1,
+    "Loss": 0, "L": 0, "Derrota": 0
+}
+
+# Boca cumulative points
 df_boca_matches = (
-    df_matches[df_matches["Team"] == "Boca Juniors"]
+    df_matches[df_matches["Team"].str.contains("Boca", case=False, na=False)]
     .copy()
     .sort_values("Date")
 )
 df_boca_matches["Points"] = df_boca_matches["Win_Draw_Loss"].map(result_map)
 df_boca_matches["CumPoints"] = df_boca_matches["Points"].cumsum()
 
-st.markdown("### Graph 1 – Boca Juniors (Cumulative Points)")
+st.write("Boca debug:", df_boca_matches[["Date", "Opponent", "Win_Draw_Loss", "Points", "CumPoints"]].head())
 
+st.markdown("### Graph 1 – Boca Juniors (Cumulative Points)")
 chart_boca = (
     alt.Chart(df_boca_matches)
     .mark_line(point=True)
@@ -235,25 +250,23 @@ chart_boca = (
     )
     .properties(height=300)
 )
-
 st.altair_chart(chart_boca, use_container_width=True)
-
-
 
 # River cumulative points
 df_river_matches = (
-    df_matches[df_matches["Team"] == "River Plate"]
+    df_matches[df_matches["Team"].str.contains("River", case=False, na=False)]
     .copy()
     .sort_values("Date")
 )
 df_river_matches["Points"] = df_river_matches["Win_Draw_Loss"].map(result_map)
 df_river_matches["CumPoints"] = df_river_matches["Points"].cumsum()
 
-st.markdown("### Graph 2 – River Plate (Cumulative Points)")
+st.write("River debug:", df_river_matches[["Date", "Opponent", "Win_Draw_Loss", "Points", "CumPoints"]].head())
 
+st.markdown("### Graph 2 – River Plate (Cumulative Points)")
 chart_river = (
     alt.Chart(df_river_matches)
-    .mark_line(point=True, color="red")
+    .mark_line(point=True)
     .encode(
         x="Date:T",
         y="CumPoints:Q",
@@ -261,13 +274,10 @@ chart_river = (
     )
     .properties(height=300)
 )
-
 st.altair_chart(chart_river, use_container_width=True)
 
-
-
+# DV calls graph (unchanged)
 st.markdown("### Graph 3 – Daily DV Calls (AMBA)")
-
 chart_dv = (
     alt.Chart(dv_daily)
     .mark_bar()
@@ -278,8 +288,8 @@ chart_dv = (
     )
     .properties(height=300)
 )
-
 st.altair_chart(chart_dv, use_container_width=True)
+
 
 
 # 🔹 COMBINED – DV calls + Boca/River match days (Altair)
