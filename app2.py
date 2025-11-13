@@ -10,17 +10,17 @@ with col1:
     st.image("Boca_escudo.png", width=120)
 
 with col2:
-    st.title("Football & Domestic Violence")
+    st.title("Football & Domestic Violence in Argentina")
 
-with col4:
+with col3:
     st.image("River_logo.png", width=90)
 
 st.set_page_config(
-    page_title="Football & Domestic Violence – AMBA 2024",
+    page_title="Football and DV – AMBA 2024",
     layout="wide"
 )
 
-st.title("⚽ Football & Domestic Violence – AMBA 2024")
+st.title("⚽ Football & DV – AMBA 2024")
 st.markdown("""
 Web page that combines:
 
