@@ -37,7 +37,7 @@ and matches **daily call counts** with **Boca & River matches**.
 BASE_DIR = Path(__file__).parent
 
 BOCA_FILE = BASE_DIR / "Boca_2024_Whole_Year.csv"
-RIVER_FILE = BASE_DIR / "River_Plate_2024_Whole_Year.csv"
+RIVER_FILE = BASE_DIR / "River_Plate_2024_Whole_Year"
 DV_FILE    = BASE_DIR / "DV-Calls-AMBA.csv"
 
 
