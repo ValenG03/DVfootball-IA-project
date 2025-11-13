@@ -20,7 +20,7 @@ st.set_page_config(
     layout="wide"
 )
 
-st.title("⚽ Football & DV – AMBA 2024")
+st.title("⚽ Football & DV – AMBA 2024 ⚽")
 st.markdown("""
 Web page that combines:
 
