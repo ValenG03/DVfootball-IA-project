@@ -5,10 +5,10 @@ import matplotlib.pyplot as plt
 st.set_page_config(page_title="Football and Domestic Violence", layout="wide")
 st.title("⚽ Football and Domestic Violence in Argentina (2024)")
 
-st.markdown("
+st.markdown("""
 This analysis uses **Boca_2024_Whole_Year.csv** and **llamados-violencia-familiar-202407-Argentina.csv**.
 We count the **number of calls per day** (based on `call_date`, originally `llamado_fecha`) and match them to the game dates.
-")
+""")
 
 # -----------------------------
 # 1) FILE LOADING (matching your actual columns)
