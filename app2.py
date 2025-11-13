@@ -7,7 +7,7 @@ from pathlib import Path
 col1, col2, col3 = st.columns([1,3,1])
 
 with col1:
-    st.image("Boca_escudo.png", width=90)
+    st.image("Boca_escudo.png", width=120)
 
 with col2:
     st.title("⚽ Football & Domestic Violence – AMBA 2024")
