@@ -216,8 +216,8 @@ else:  # "Raw data"
 
 st.markdown("---")
 st.caption(
-    "Very simple prototype. For deeper analysis you may need more detailed modelling "
-    "(e.g. hour of match vs. hour of calls, lagged effects, controls, etc.)."
+    "Very simple prototype. For deeper analysis we may need more detailed modelling "
+    "(e.g. hour of match vs. hour of calls, lateral effects and other factors, controls, etc.)."
 )
 
 
