@@ -129,7 +129,7 @@ def load_raw_data():
 
 
 # Load data once (cached)
-df_matches, dv_daily, df_matches_dv = load_raw_data()
+df_matches, dv_daily, df_matches_dv, df_calls_daily = load_raw_data()
 
 # -----------------------------
 # 2) SIDEBAR CONTROLS
