@@ -21,7 +21,7 @@ def load_data(matches_path, calls_path):
     df_matches = pd.read_csv(matches_path)
     df_calls = pd.read_csv(calls_path)
 
-   df_calls = df_calls.rename(columns={'llamado_fecha': 'call_date'})
+    df_calls = df_calls.rename(columns={'llamado_fecha': 'call_date'})
     
     # Normalize relevant columns
     # Matches: includes 'Date', 'Boca_Goals', 'Rival_Goals', 'Result', 'Win_Draw_Loss'
