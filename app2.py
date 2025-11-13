@@ -282,40 +282,49 @@ chart_dv = (
 st.altair_chart(chart_dv, use_container_width=True)
 
 
+# 🔹 COMBINED – DV calls + Boca/River match days (Altair)
 
-st.markdown("### Graph 4 – Combined DV Calls + Boca/River Matches")
+st.markdown("### Graph 4 – Combined DV Calls + Boca & River Matches")
 
+# Primero, matcheamos los días de partido con las llamadas de DV
+boca_match_days = df_boca_matches.merge(dv_daily, on="Date", how="left")
+river_match_days = df_river_matches.merge(dv_daily, on="Date", how="left")
+
+# Barras de llamadas DV (AMBA)
 dv_chart = (
     alt.Chart(dv_daily)
-    .mark_bar(color="#7aa6c2")
+    .mark_bar()
     .encode(
         x="Date:T",
         y="dv_calls_AMBA:Q",
-        tooltip=["Date", "dv_calls_AMBA"]
+        tooltip=["Date:T", "dv_calls_AMBA:Q"]
     )
 )
 
+# Puntos para días de partido de Boca
 boca_points = (
-    alt.Chart(df_boca_matches)
-    .mark_circle(size=70, color="blue")
+    alt.Chart(boca_match_days)
+    .mark_point(size=80, filled=True)
     .encode(
         x="Date:T",
         y="dv_calls_AMBA:Q",
-        tooltip=["Date", "Opponent", "Win_Draw_Loss"]
+        color=alt.value("blue"),
+        tooltip=["Date:T", "Opponent:N", "Win_Draw_Loss:N", "dv_calls_AMBA:Q"]
     )
 )
 
+# Puntos para días de partido de River
 river_points = (
-    alt.Chart(df_river_matches)
-    .mark_triangle(size=80, color="red")
+    alt.Chart(river_match_days)
+    .mark_point(size=80, filled=True)
     .encode(
         x="Date:T",
         y="dv_calls_AMBA:Q",
-        tooltip=["Date", "Opponent", "Win_Draw_Loss"]
+        color=alt.value("red"),
+        tooltip=["Date:T", "Opponent:N", "Win_Draw_Loss:N", "dv_calls_AMBA:Q"]
     )
 )
 
 combined_chart = (dv_chart + boca_points + river_points).properties(height=350)
 
 st.altair_chart(combined_chart, use_container_width=True)
-
