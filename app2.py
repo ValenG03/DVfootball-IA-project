@@ -490,3 +490,7 @@ st.markdown("""
 - DV calls do **not necessarily imply a direct causal link** with football results.  
 """)
 
+
+st.image("/mnt/data/Gemini_Generated_Image_gtp4x6gtp4x6gtp4.png", 
+         caption="Family watching a football match", 
+         use_column_width=True)
