@@ -461,10 +461,10 @@ st.markdown("""
 
 
 # ------------------------------------------------------
-# 7) Discussion 
-#    Advantages and Disadvantages of the Investigation #
+# 7) Advantages and Disadvantages of our Investigation
 # ------------------------------------------------------
 
+st.markdown("## Discussion")
 st.markdown("## Advantages and Unique Aspects")
 
 st.markdown("""
