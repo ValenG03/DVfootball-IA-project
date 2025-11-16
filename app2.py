@@ -491,6 +491,10 @@ st.markdown("""
 """)
 
 
-st.image("/mnt/data/Gemini_Generated_Image_gtp4x6gtp4x6gtp4.png", 
-         caption="Family watching a football match", 
-         use_column_width=True)
+st.markdown("## Closing Image")
+st.image(
+    "Gemini_Generated_Image_gtp4x6gtp4x6gtp4.png",
+    caption="Family watching a football match",
+    use_container_width=True
+)
+
