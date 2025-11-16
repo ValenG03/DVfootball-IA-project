@@ -459,3 +459,30 @@ st.markdown("""
 - Overall, there is **no robust evidence** that Boca or River results systematically increase or reduce daily DV calls in AMBA.
 """)
 
+
+# ------------------------------------------------------
+# 7) Discussion 
+#    Advantages and Disadvantages of the Investigation #
+# ------------------------------------------------------
+
+st.markdown("## Advantages and Unique Aspects")
+
+st.markdown("""
+- Controlled data selection ensures **clean and reliable inputs**.  
+- Use of **OVD**, the official source for domestic-violence statistics.  
+- Inclusion of **qualitative context** alongside statistical tests.  
+- Clear **interpretations and visualizations** to support findings.  
+- **Original study**: no prior research links Boca/River results with DV in AMBA.  
+- Potential **usefulness for future prediction models** and prevention strategies.  
+""")
+
+st.markdown("## Drawbacks")
+
+st.markdown("""
+- **No official DV numbers for the neighborhood of La Boca**.  
+- Geographic area for analysis is **broad and imprecise**.  
+- DV calls may be reported **days after the event**, especially after weekends.  
+- Assumes **40% of AMBA population are Boca fans**, which may not be exact.  
+- DV calls do **not necessarily imply a direct causal link** with football results.  
+""")
+
