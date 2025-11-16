@@ -451,8 +451,8 @@ st.altair_chart(graph, use_container_width=True)
 
 st.markdown("---")
 
-st.markdown("#### Conclusions")
-st.markdown("## Significance Level")
+st.markdown("### Conclusions")
+st.markdown("# Significance Level")
 
 st.markdown("""
 - **p-value = α = 0.05**  
