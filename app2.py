@@ -443,3 +443,19 @@ graph = (line_calls + line_smooth + points_matches).properties(
 )
 
 st.altair_chart(graph, use_container_width=True)
+
+
+# ------------------------------------------------------
+# 6) CONCLUSIONS – Statistical Analysis (Significance)
+# ------------------------------------------------------
+
+st.markdown("---")
+st.markdown("## Statistical Analysis – Significance")
+
+st.markdown("""
+- Significance level: **α = 0.05**.  
+- **Boca losses vs. non-match days**: p ≈ 0.037 **< 0.05** → losing days show **fewer calls** than non-match days.  
+- **River wins vs. non-match days**: p ≈ 0.105 **> 0.05** → slight trend to fewer calls, but **not statistically significant**.  
+- Overall, there is **no robust evidence** that Boca or River results systematically increase or reduce daily DV calls in AMBA.
+""")
+
