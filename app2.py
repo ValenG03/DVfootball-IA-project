@@ -450,7 +450,9 @@ st.altair_chart(graph, use_container_width=True)
 # ------------------------------------------------------
 
 st.markdown("---")
-st.markdown("## Statistical Analysis – Significance")
+
+st.markdown("Conclusion")
+st.markdown("## Significance Level")
 
 st.markdown("""
 - Significance level: **α = 0.05**.  
@@ -464,7 +466,7 @@ st.markdown("""
 # 7) Advantages and Disadvantages of our Investigation
 # ------------------------------------------------------
 
-
+st.markdown("---")
 st.markdown("## Discussion")
 
 st.markdown("## Advantages and Unique Aspects")
