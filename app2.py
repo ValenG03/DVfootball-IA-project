@@ -20,6 +20,9 @@ st.set_page_config(
     layout="wide"
 )
 
+st.markdown("<h3 style='text-align:center;'>📌 Research Question: Does football performance influence domestic violence rates in AMBA?<br><br>👥 Team MAB — Mexico 🇲🇽 · Argentina 🇦🇷 · Belgium 🇧🇪<br>Members: <b>Larissa Bolaños · Valentin Gerold · Rik Commermann</b></h3>", unsafe_allow_html=True)
+
+
 st.title("⚽ Football & DV – AMBA 2024 ⚽")
 st.markdown("""
 Web page that combines:
