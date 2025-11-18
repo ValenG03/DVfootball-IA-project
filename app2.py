@@ -3,27 +3,55 @@ import pandas as pd
 import altair as alt
 from pathlib import Path
 
-# Logos pasted
+# -----------------------------
+# PAGE CONFIG
+# -----------------------------
+st.set_page_config(
+    page_title="Football and DV – AMBA 2024",
+    layout="wide"
+)
+
+# -----------------------------
+# CENTERED TITLE WITH LOGOS
+# -----------------------------
 col1, col2, col3 = st.columns([1,3,1])
 
 with col1:
     st.image("Boca_escudo.png", width=120)
 
 with col2:
-    st.title("Football & Domestic Violence in Argentina")
+    st.markdown(
+        "<h1 style='text-align:center;'>⚽ Football & Domestic Violence in Argentina ⚽</h1>",
+        unsafe_allow_html=True
+    )
 
 with col3:
     st.image("River_logo.png", width=90)
 
-st.set_page_config(
-    page_title="Football and DV – AMBA 2024",
-    layout="wide"
+# -----------------------------
+# RESEARCH QUESTION + TEAM
+# (Centered + flags will render)
+# -----------------------------
+st.markdown(
+    """
+    <h3 style='text-align:center;'>
+    📌 <b>Research Question:</b><br>
+    Does football performance influence domestic violence rates in AMBA?<br><br>
+
+    👥 <b>Team MAB</b><br>
+    Mexico &#x1F1F2;&#x1F1FD; &nbsp;·&nbsp;
+    Argentina &#x1F1E6;&#x1F1F7; &nbsp;·&nbsp;
+    Belgium &#x1F1E7;&#x1F1EA;<br><br>
+
+    <b>Members:</b><br>
+    Larissa Bolaños &#x1F1F2;&#x1F1FD; ·
+    Valentin Gerold &#x1F1E6;&#x1F1F7; ·
+    Rik Commermann &#x1F1E7;&#x1F1EA;
+    </h3>
+    """,
+    unsafe_allow_html=True
 )
 
-st.markdown("<h3 style='text-align:center;'>📌 Research Question: Does football performance influence domestic violence rates in AMBA?<br><br>👥 Team MAB — Mexico 🇲🇽 · Argentina 🇦🇷 · Belgium 🇧🇪<br>Members: <b>Larissa Bolaños 🇲🇽 · Valentin Gerold 🇦🇷 · Rik Commermann 🇧🇪</b></h3>", unsafe_allow_html=True)
-
-
-st.title("⚽ Football & DV – AMBA 2024 ⚽")
 st.markdown("""
 Web page that combines:
 
