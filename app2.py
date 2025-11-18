@@ -526,6 +526,5 @@ st.markdown("## Closing Image")
 st.image(
     "Gemini_Generated_Image_gtp4x6gtp4x6gtp4.png",
     caption="One of the main objectives of this project",
-    use_container_width=True
+    width=400
 )
-
