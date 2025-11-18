@@ -21,7 +21,7 @@ with col1:
 
 with col2:
     st.markdown(
-        "<h1 style='text-align:center;'>⚽ Football & Domestic Violence in Argentina ⚽</h1>",
+        "<h1 style='text-align:center;'>⚽ Football & Domestic Violence in Argentina </h1>",
         unsafe_allow_html=True
     )
 
@@ -42,7 +42,6 @@ st.markdown(
     Mexico &#x1F1F2;&#x1F1FD; &nbsp;·&nbsp;
     Argentina &#x1F1E6;&#x1F1F7; &nbsp;·&nbsp;
     Belgium &#x1F1E7;&#x1F1EA;<br><br>
-
     <b>Members:</b><br>
     Larissa Bolaños &#x1F1F2;&#x1F1FD; ·
     Valentin Gerold &#x1F1E6;&#x1F1F7; ·
@@ -52,6 +51,7 @@ st.markdown(
     unsafe_allow_html=True
 )
 
+st.markdown("Football and DV in AMBA, 2024")
 st.markdown("""
 Web page that combines:
 
