@@ -24,7 +24,7 @@ with col2:
         """
         <div style="display:flex; justify-content:center; align-items:center;">
             <h1 style="text-align:center; font-size:40px; margin:0; padding:0;">
-                ⚽ Football & Domestic Violence in Argentina ⚽
+                    ⚽ Football & Domestic Violence in Argentina ⚽
             </h1>
         </div>
         """,
