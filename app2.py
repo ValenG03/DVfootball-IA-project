@@ -20,8 +20,8 @@ with col2:
     st.markdown(
         """
         <div style="display:flex; justify-content:center; align-items:center; width:100%;">
-            <h1 style="font-size:40px; text-align:center; margin:0; padding:0;">
-                ⚽ Football & Domestic Violence in Argentina ⚽
+            <h1 style="font-size:46px; text-align:center; margin:0; padding:0;">
+                ⚽Football & Domestic Violence in Argentina⚽
             </h1>
         </div>
         """,
