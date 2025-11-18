@@ -11,28 +11,25 @@ st.set_page_config(
     layout="wide"
 )
 
-# -----------------------------
-# CENTERED TITLE WITH LOGOS
-# -----------------------------
 col1, col2, col3 = st.columns([1,3,1])
 
 with col1:
     st.image("Boca_escudo.png", width=120)
-    
+
 with col2:
     st.markdown(
         """
-        <div style="display:flex; justify-content:center; align-items:center;">
-            <h1 style="text-align:center; font-size:40px; margin:0; padding:0;">
-                    ⚽ Football &   Domestic Violence in Argentina ⚽
+        <div style="display:flex; justify-content:center; align-items:center; width:100%;">
+            <h1 style="font-size:46px; text-align:center; margin:0; padding:0;">
+                ⚽ Football & Domestic Violence in Argentina ⚽
             </h1>
         </div>
         """,
         unsafe_allow_html=True
     )
 
-
 with col3:
+    st.markdown("<div style='width:120px; height:1px;'></div>", unsafe_allow_html=True)  # invisible spacer
     st.image("River_logo.png", width=90)
 
 # -----------------------------
