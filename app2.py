@@ -51,7 +51,7 @@ st.markdown(
     unsafe_allow_html=True
 )
 
-st.markdown("Football and DV in AMBA, 2024")
+st.markdown("""Football and DV in AMBA, 2024""")
 st.markdown("""
 Web page that combines:
 
