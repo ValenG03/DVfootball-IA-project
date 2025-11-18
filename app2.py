@@ -18,10 +18,14 @@ col1, col2, col3 = st.columns([1,3,1])
 
 with col1:
     st.image("Boca_escudo.png", width=120)
-
+    
 with col2:
     st.markdown(
-        "</h1>⚽ Football & Domestic Violence in Argentina ⚽</h1>",
+        """
+        <h1 style='text-align:center; font-size:42px;'>
+        ⚽ Football & Domestic Violence in Argentina ⚽
+        </h1>
+        """,
         unsafe_allow_html=True
     )
 
