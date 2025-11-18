@@ -56,16 +56,6 @@ st.markdown(
     unsafe_allow_html=True
 )
 
-st.markdown("""
-Web page that combines:
-
-- **Boca_2024_Whole_Year.csv**
-- **River_Plate_2024_Whole_Year.csv**
-- **DV-Calls-AMBA.csv** (domestic violence calls, AMBA region)
-
-and matches **daily call counts** with **Boca & River matches**.
-""")
-
 
 st.markdown("---")
 col1, col2, col3 = st.columns([1,3,1])
