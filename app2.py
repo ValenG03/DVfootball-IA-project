@@ -44,13 +44,13 @@ st.markdown(
     Does football performance influence domestic violence rates in AMBA?<br><br>
 
     👥 <b>Team MAB</b><br>
-    Mexico;
-    Argentina;
-    Belgium;<br><br>
-    <b>Members:</b><br>
-    Larissa Bolaños ; 
-    Valentin Gerold ;
-    Rik Commermann ;
+    Mexico,
+    Argentina,
+    Belgium,<br><br>
+    <b>Members</b><br>
+    Larissa Bolaños, 
+    Valentin Gerold,
+    Rik Commermann,
     </h3>
     """,
     unsafe_allow_html=True
