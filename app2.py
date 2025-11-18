@@ -66,6 +66,12 @@ Web page that combines:
 and matches **daily call counts** with **Boca & River matches**.
 """)
 
+st.markdown("---")
+col1, col2, col3 = st.columns([1,3,1])
+
+with col2:
+    st.image("Captura de pantalla 2025-11-18 130747.png", use_container_width=True)
+
 
 # -----------------------------
 # 1) FILE PATHS – same folder as this script
