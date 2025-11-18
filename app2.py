@@ -22,7 +22,7 @@ with col1:
 with col2:
     st.markdown(
         """
-        <h1 style='text-align:center; font-size:42px;'>
+        <h1 style='text-align:center; font-size:40px;'>
         ⚽ Football & Domestic Violence in Argentina ⚽
         </h1>
         """,
