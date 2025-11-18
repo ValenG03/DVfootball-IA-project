@@ -71,7 +71,7 @@ st.markdown("---")
 col1, col2, col3 = st.columns([1,3,1])
 
 with col2:
-    st.markdown("<p style='text-align:center; font-size:14px;'>Quick context</p>", unsafe_allow_html=True)
+    st.markdown("<p style='text-align:center; font-size:36px;'>Quick context</p>", unsafe_allow_html=True)
     st.image(
         "Captura de pantalla 2025-11-18 130747.png",
         caption="Source: OVD 2024 Official report",
