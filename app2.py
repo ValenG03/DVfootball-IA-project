@@ -51,7 +51,7 @@ st.markdown(
     unsafe_allow_html=True
 )
 
-st.markdown("""Football and DV in AMBA, 2024""")
+
 st.markdown("""
 Web page that combines:
 
@@ -194,7 +194,7 @@ else:
 # 3) MAIN VIEWS
 # -----------------------------
 if selected_view == "Matches + DV calls":
-    st.subheader("Matches with domestic violence calls (AMBA) on the same date")
+    st.subheader("Matches with DV calls (AMBA) on the same date")
 
     st.markdown("""
     Each row is a match (Boca or River) with the **number of DV calls in AMBA**
@@ -246,11 +246,6 @@ else:  # "Raw data"
         st.dataframe(df_matches_dv)
 
 st.markdown("---")
-st.caption(
-    "Very simple prototype. For deeper analysis we may need more detailed modelling "
-    "(e.g. hour of match vs. hour of calls, lateral effects and other factors, controls, etc.)."
-)
-
 
 # -----------------------------
 # 4) QUICK OVERVIEW GRAPHS
