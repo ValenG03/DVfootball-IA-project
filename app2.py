@@ -523,8 +523,15 @@ st.markdown("""
 
 
 st.markdown("## Closing Image")
-st.image(
-    "Gemini_Generated_Image_gtp4x6gtp4x6gtp4.png",
-    caption="One of the main objectives of this project",
-    width=400
+
+st.markdown(
+    """
+    <div style="display:flex; justify-content:center; margin-top:15px;">
+        <img src="Gemini_Generated_Image_gtp4x6gtp4x6gtp4.png"
+             alt="Closing Image"
+             style="width:40%; border-radius:10px;">
+    </div>
+    """,
+    unsafe_allow_html=True
 )
+
