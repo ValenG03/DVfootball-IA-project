@@ -33,7 +33,7 @@ with col2:
 
 
 with col3:
-    st.image("River_logo.png", width=85)
+    st.image("River_logo.png", width=90)
 
 # -----------------------------
 # RESEARCH QUESTION + TEAM
