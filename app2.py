@@ -22,15 +22,18 @@ with col1:
 with col2:
     st.markdown(
         """
-        <h1 style='text-align:center; font-size:40px;'>
-        ⚽ Football & Domestic Violence in Argentina ⚽
-        </h1>
+        <div style="display:flex; justify-content:center; align-items:center;">
+            <h1 style="text-align:center; font-size:48px; margin:0; padding:0;">
+                ⚽ Football & Domestic Violence in Argentina ⚽
+            </h1>
+        </div>
         """,
         unsafe_allow_html=True
     )
 
+
 with col3:
-    st.image("River_logo.png", width=90)
+    st.image("River_logo.png", width=120)
 
 # -----------------------------
 # RESEARCH QUESTION + TEAM
