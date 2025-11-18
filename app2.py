@@ -46,11 +46,11 @@ st.markdown(
     👥 <b>Team MAB</b><br>
     Mexico,
     Argentina,
-    Belgium,<br><br>
+    Belgium<br><br>
     <b>Members</b><br>
     Larissa Bolaños, 
     Valentin Gerold,
-    Rik Commermann,
+    Rik Commermann
     </h3>
     """,
     unsafe_allow_html=True
