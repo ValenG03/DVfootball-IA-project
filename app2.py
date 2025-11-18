@@ -35,21 +35,23 @@ with col3:
 
 # -----------------------------
 # RESEARCH QUESTION + TEAM
+# (Centered + flags will render)
 # -----------------------------
 st.markdown(
     """
-    <div style='text-align:center; font-size:20px;'>
-        📌 <b>Research Question:</b><br>
-        Does football performance influence domestic violence rates in AMBA?<br><br>
+    <h3 style='text-align:center;'>
+    📌 <b>Research Question:</b><br>
+    Does football performance influence domestic violence rates in AMBA?<br><br>
 
-        👥 <b>Team MAB</b><br>
-        Mexico 🇲🇽 &nbsp;·&nbsp; Argentina 🇦🇷 &nbsp;·&nbsp; Belgium 🇧🇪<br><br>
-
-        <b>Members:</b><br>
-        Larissa Bolaños 🇲🇽 ·
-        Valentin Gerold 🇦🇷 ·
-        Rik Commermann 🇧🇪
-    </div>
+    👥 <b>Team MAB</b><br>
+    Mexico &#x1F1F2;&#x1F1FD; &nbsp;·&nbsp;
+    Argentina &#x1F1E6;&#x1F1F7; &nbsp;·&nbsp;
+    Belgium &#x1F1E7;&#x1F1EA;<br><br>
+    <b>Members:</b><br>
+    Larissa Bolaños &#x1F1F2;&#x1F1FD; ·
+    Valentin Gerold &#x1F1E6;&#x1F1F7; ·
+    Rik Commermann &#x1F1E7;&#x1F1EA;
+    </h3>
     """,
     unsafe_allow_html=True
 )
