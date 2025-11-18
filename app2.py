@@ -43,7 +43,7 @@ st.markdown(
     📌 <b>Research Question:</b><br>
     Does football performance influence domestic violence rates in AMBA?<br><br>
 
-    👥 <b>Team MAB</b><br>
+    👥 <b>MAB Team</b><br>
     Mexico,
     Argentina,
     Belgium<br><br>
