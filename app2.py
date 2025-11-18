@@ -7,20 +7,20 @@ from pathlib import Path
 col1, col2, col3 = st.columns([1,3,1])
 
 with col1:
-    st.image("Boca_escudo.png", width=120)
+    st.image("<h3 style='text-align:center;'> "Boca_escudo.png", width=120)
 
 with col2:
     st.title("Football & Domestic Violence in Argentina")
 
 with col3:
-    st.image("River_logo.png", width=90)
+    st.image("<h3 style='text-align:center;'> "River_logo.png", width=90)
 
-st.set_page_config(
+st.set_page_config(<h3 style='text-align:center;'>
     page_title="Football and DV – AMBA 2024",
     layout="wide"
 )
 
-st.markdown("<h3 style='text-align:center;'>📌 Research Question: Does football performance influence domestic violence rates in AMBA?<br><br>👥 Team MAB — Mexico 🇲🇽 · Argentina 🇦🇷 · Belgium 🇧🇪<br>Members: <b>Larissa Bolaños · Valentin Gerold · Rik Commermann</b></h3>", unsafe_allow_html=True)
+st.markdown("<h3 style='text-align:center;'>📌 Research Question: Does football performance influence domestic violence rates in AMBA?<br><br>👥 Team MAB — Mexico 🇲🇽 · Argentina 🇦🇷 · Belgium 🇧🇪<br>Members: <b>Larissa Bolaños 🇲🇽 · Valentin Gerold 🇦🇷 · Rik Commermann 🇧🇪</b></h3>", unsafe_allow_html=True)
 
 
 st.title("⚽ Football & DV – AMBA 2024 ⚽")
