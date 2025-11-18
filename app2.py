@@ -253,25 +253,6 @@ else:  # "Raw data"
 st.markdown("---")
 
 # -----------------------------
-# 4) QUICK OVERVIEW GRAPHS
-# -----------------------------
-st.subheader("Overview – Matches & DV Calls")
-
-# Ensure Date is datetime
-df_matches["Date"] = pd.to_datetime(df_matches["Date"], dayfirst=True, errors="coerce")
-
-# Normalize results
-df_matches["Win_Draw_Loss"] = df_matches["Win_Draw_Loss"].astype(str).str.strip()
-
-# Result mapping (minimal but robust)
-result_map = {
-    "Win": 3, "W": 3,
-    "Draw": 1, "D": 1,
-    "Loss": 0, "L": 0
-}
-
-
-# -----------------------------
 # DV CALLS graph
 # -----------------------------
 st.markdown("### Graph 3 – Daily DV Calls (AMBA)")
