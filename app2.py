@@ -327,10 +327,27 @@ chart_river = (
 st.altair_chart(chart_river, use_container_width=True)
 
 
+st.markdown("### Simple graphs")
+
+st.markdown("### Bar Chart – Boca Juniors")
+st.image("Captura de pantalla 2025-11-19 130728.png")
+
+st.markdown("### Bar Chart – River Plate")
+st.image("Captura de pantalla 2025-11-19 130757.png")
+
+st.image("Captura de pantalla 2025-11-19 130901.png")
+
+st.image("Captura de pantalla 2025-11-19 130910.png")
+
+
+
+
+
 # -----------------------------
 # DV CALLS graph
 # -----------------------------
-st.markdown("### Graph 3 – Daily DV Calls (AMBA)")
+st.markdown("### Complex graphs")
+st.markdown("### Daily DV Calls (AMBA)")
 
 chart_dv = (
     alt.Chart(dv_daily)
@@ -348,7 +365,7 @@ st.altair_chart(chart_dv, use_container_width=True)
 
 # 🔹 COMBINED – DV calls + Boca/River match days (Altair)
 
-st.markdown("### Graph 4 – Combined DV Calls + Boca & River Matches")
+st.markdown("### Combined DV Calls + Boca & River Matches")
 
 # Primero, matcheamos los días de partido con las llamadas de DV
 boca_match_days = df_boca_matches.merge(dv_daily, on="Date", how="left")
