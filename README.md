@@ -1,6 +1,6 @@
 # ⚽ Football and Domestic Violence in Argentina (2024)
 
-# This project analyzes whether Boca Juniors' results during 2024 are related to police calls for domestic violence (DV) on match days.
+# This project analyzes whether Boca Juniors' and River Plate's results during 2024 are related to police calls for domestic violence (DV) on match days.
 
 # 📊 Objective
 
@@ -9,7 +9,7 @@
 # 🧠 Data Sources
 
 # Boca Juniors Results 2024: file Boca_2024_Whole_Year.csv.xlsx
-
+# River Plate Results 2024: file River_Plate_2024_Whole_Year.csv
 # Calls for domestic violence: file llamados-violencia-familiar-202407-Argentina.csv
 
 
