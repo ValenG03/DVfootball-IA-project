@@ -1,15 +1,15 @@
-# ⚽ Fútbol y Violencia Doméstica en Argentina (2024)
+# ⚽ Football and Domestic Violence in Argentina (2024)
 
-# Este proyecto analiza si los resultados de Boca Juniors durante 2024 se relacionan con los llamados policiales por violencia doméstica (DV) en los mismos días de partido.
+# This project analyzes whether Boca Juniors' results during 2024 are related to police calls for domestic violence (DV) on match days.
 
-# 📊 Objetivo
+# 📊 Objective
 
-# Explorar, de forma cuantitativa, si los días en los que Boca gana, los llamados por violencia disminuyen, y si los días que pierde, los llamados aumentan.
+# To explore, quantitatively, whether calls for domestic violence decrease on days when Boca wins, and whether calls increase on days when they lose.
 
-# 🧠 Fuentes de datos
+# 🧠 Data Sources
 
-# Resultados de Boca Juniors 2024: archivo Boca_2024_Whole_Year.csv.xlsx
+# Boca Juniors Results 2024: file Boca_2024_Whole_Year.csv.xlsx
 
-# Llamados por violencia doméstica: archivo llamados-violencia-familiar-202407-Argentina.csv
+# Calls for domestic violence: file llamados-violencia-familiar-202407-Argentina.csv
 
 
