@@ -549,8 +549,8 @@ st.markdown("""
 - **Weak correlation**
 - **High variability. Dispersed outcomes**
 - **Not concrete effects**
-- Other **factors** explain DV (socioeconomic background, alcohol, pandemic, family dynamics) 
-- **Representativeness of the sample**?
+- Other **factors** involved (alcohol, family dynamics)
+- **Representativeness of the sample**
 - Need to know if victim or **perpetrator is affiliated** to River or Boca
 - Not all DV is reported
 
