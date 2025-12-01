@@ -531,7 +531,6 @@ st.markdown("""
 - Inclusion of **qualitative context** alongside statistical tests.  
 - Clear **interpretations and visualizations** to support findings.  
 - **First quantitative study in the region**: no prior research links Boca/River results with DV in AMBA.  
-- 
 """)
 
 st.markdown("## Drawbacks")
