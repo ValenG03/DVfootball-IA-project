@@ -537,7 +537,7 @@ st.markdown("## Drawbacks")
 
 st.markdown("""
 - **Estimated 70% AMBA population are Boca + River fans**.  
-- Geographic area imprecise.  
+- No officials numbers of DV in La Boca
 - DV calls may be reported **days after the event**, especially after weekends.  
 """)
 
@@ -546,11 +546,14 @@ st.markdown("---")
 st.markdown("# Conclusions")
 st.markdown("""
 - **Observational correlation**, not a controlled experiment. No causality
+- **Weak correlation**
+- **High variability. Dispersed outcomes**
+- **Not concrete effects**
 - Other **factors** explain DV (socioeconomic background, alcohol, pandemic, family dynamics) 
-- How **representative is the sample**?
+- **Representativeness of the sample**?
 - Need to know if victim or **perpetrator is affiliated** to River or Boca
 - Not all DV is reported
-- **Weak correlation**
+
 """)
 
 
