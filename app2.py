@@ -547,7 +547,7 @@ st.markdown("# Conclusions")
 st.markdown("""
 - **Observational correlation**, not a controlled experiment. No causality
 - **Weak correlation**
-- **High variability. Dispersed outcomes**
+- **High variability**
 - **Not concrete effects**
 - Other **factors** involved (alcohol, family dynamics)
 - **Representativeness of the sample**
