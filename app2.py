@@ -520,7 +520,7 @@ st.markdown("""
 # ------------------------------------------------------
 
 st.markdown("---")
-st.markdown("### Discussion")
+st.markdown("# Discussion")
 
 st.markdown("## Advantages and Unique Aspects")
 
@@ -542,7 +542,7 @@ st.markdown("""
 """)
 
 
-st.markdown("### Conclusions")
+st.markdown("# Conclusions")
 st.markdown("""
 - **Observational correlation**, not a controlled experiment. No causality
 - Other **factors** explain DV (socioeconomic background, alcohol, pandemic, family dynamics) 
@@ -553,7 +553,7 @@ st.markdown("""
 """)
 
 
-st.markdown("## Closing Image")
+st.markdown("### Closing Image")
 
 st.markdown(
     "<div style='text-align: center;'>",
