@@ -508,7 +508,7 @@ st.markdown("---")
 st.markdown("# Significance Level")
 
 st.markdown("""
-- **Kruskal-Wallis H-test: compares 3 scenarios**  
+- **Kruskal-Wallis H-test**: compares 3 scenarios  
 - **Boca losses vs. non-match days**: p ≈ 0.037 **< 0.05** → losing days show **fewer calls** than non-match days.  
 - **River wins vs. non-match days**: p ≈ 0.105 **> 0.05** → slight trend to fewer calls, but **not statistically significant**.  
 - Overall, there is **no robust evidence** that Boca or River results systematically increase or reduce daily DV calls in AMBA.
