@@ -330,7 +330,7 @@ chart_river = (
 st.altair_chart(chart_river, use_container_width=True)
 
 
-st.markdown("### Chat GPT simple graphs")
+st.markdown("# Chat GPT simple graphs")
 
 st.markdown("### Bar Chart – Boca Juniors")
 st.image("Captura de pantalla 2025-11-19 130728.png")
@@ -349,7 +349,7 @@ st.image("Captura de pantalla 2025-11-19 130910.png")
 # -----------------------------
 # DV CALLS graph
 # -----------------------------
-st.markdown("### Complex graphs")
+st.markdown("# Complex graphs")
 st.markdown("### Daily DV Calls (AMBA)")
 
 chart_dv = (
