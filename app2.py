@@ -60,7 +60,7 @@ st.markdown("---")
 col1, col2, col3 = st.columns([1,3,1])
 
 with col2:
-    st.markdown("<p style='text-align:center; font-size:36px;'>**Quick context**</p>", unsafe_allow_html=True)
+    st.markdown("<p style='text-align:center; font-size:36px;'>Quick context</p>", unsafe_allow_html=True)
     st.image(
         "Captura de pantalla 2025-11-18 130747.png",
         caption="Source: OVD 2024 Official report",
@@ -260,7 +260,7 @@ st.markdown("---")
 # -----------------------------
 # 4) QUICK OVERVIEW GRAPHS
 # -----------------------------
-st.subheader("## Overview – Matches & DV Calls")
+st.subheader("Overview – Matches & DV Calls")
 
 # Ensure Date is datetime
 df_matches["Date"] = pd.to_datetime(df_matches["Date"], dayfirst=True, errors="coerce")
@@ -542,6 +542,7 @@ st.markdown("""
 """)
 
 
+st.markdown("---")
 st.markdown("# Conclusions")
 st.markdown("""
 - **Observational correlation**, not a controlled experiment. No causality
@@ -551,6 +552,7 @@ st.markdown("""
 - Not all DV is reported
 - **Weak correlation**
 """)
+
 
 
 st.markdown("### Closing Image")
