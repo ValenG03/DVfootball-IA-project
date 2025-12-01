@@ -537,7 +537,7 @@ st.markdown("## Drawbacks")
 
 st.markdown("""
 - **Estimated 70% AMBA population are Boca + River fans**.  
-- Geographic area imprecise**.  
+- Geographic area imprecise.  
 - DV calls may be reported **days after the event**, especially after weekends.  
 """)
 
