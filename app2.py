@@ -50,7 +50,7 @@ st.markdown(
     <b>Members</b><br>
     Larissa Bolaños, 
     Valentin Gerold,
-    Rik Commermann
+    Rik Commerman
     </h3>
     """,
     unsafe_allow_html=True
@@ -66,6 +66,9 @@ with col2:
         caption="Source: OVD 2024 Official report",
         use_container_width=True
     )
+
+st.subheader("Domestic Violence Definition")
+st.markdown("Any single incident or pattern of conduct where someone’s behaviour towards another is abusive, and where the people involved are aged 16 or over and are, or have been, personally connected (Hasan et al., 2025).")
 
 
 # -----------------------------
