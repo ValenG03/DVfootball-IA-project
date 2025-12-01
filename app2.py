@@ -545,7 +545,8 @@ st.markdown("""
 st.markdown("---")
 st.markdown("# Conclusions")
 st.markdown("""
-- **Observational correlation**, not a controlled experiment. No causality
+- **Observational correlation**, not a controlled experiment
+- "Correlation, not causation"
 - **Weak correlation**
 - **High variability**
 - **Not concrete effects**
