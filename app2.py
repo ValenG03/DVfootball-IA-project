@@ -505,11 +505,10 @@ st.altair_chart(graph, use_container_width=True)
 
 st.markdown("---")
 
-st.markdown("### Conclusions")
 st.markdown("# Significance Level")
 
 st.markdown("""
-- **p-value = α = 0.05**  
+- **Kruskal-Wallis H-test: compares 3 scenarios**  
 - **Boca losses vs. non-match days**: p ≈ 0.037 **< 0.05** → losing days show **fewer calls** than non-match days.  
 - **River wins vs. non-match days**: p ≈ 0.105 **> 0.05** → slight trend to fewer calls, but **not statistically significant**.  
 - Overall, there is **no robust evidence** that Boca or River results systematically increase or reduce daily DV calls in AMBA.
@@ -530,20 +529,28 @@ st.markdown("""
 - Use of **OVD**, the official source for domestic-violence statistics.  
 - Inclusion of **qualitative context** alongside statistical tests.  
 - Clear **interpretations and visualizations** to support findings.  
-- **Original study**: no prior research links Boca/River results with DV in AMBA.  
-- Potential **usefulness for future prediction models** and prevention strategies.  
+- **First quantitative study in the region**: no prior research links Boca/River results with DV in AMBA.  
+- 
 """)
 
 st.markdown("## Drawbacks")
 
 st.markdown("""
-- **No official DV numbers for the neighborhood of La Boca**.  
-- Geographic area for analysis is **broad and imprecise**.  
+- **Estimated 70% AMBA population are Boca + River fans**.  
+- Geographic area imprecise**.  
 - DV calls may be reported **days after the event**, especially after weekends.  
-- Assumes **40% of AMBA population are Boca fans**, which may not be exact.  
-- DV calls do **not necessarily imply a direct causal link** with football results.  
 """)
 
+
+st.markdown("### Conclusions")
+st.markdown("""
+- **Observational correlation**, not a controlled experiment. No causality
+- Other **factors** explain DV (socioeconomic background, alcohol, pandemic, family dynamics) 
+- How **representative is the sample**?
+- Need to know if victim or **perpetrator is affiliated** to River or Boca
+- Not all DV is reported
+- **Weak correlation**
+""")
 
 
 st.markdown("## Closing Image")
