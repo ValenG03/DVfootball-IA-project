@@ -60,7 +60,7 @@ st.markdown("---")
 col1, col2, col3 = st.columns([1,3,1])
 
 with col2:
-    st.markdown("<p style='text-align:center; font-size:36px;'>Quick context</p>", unsafe_allow_html=True)
+    st.markdown("<p style='text-align:center; font-size:36px;'>**Quick context**</p>", unsafe_allow_html=True)
     st.image(
         "Captura de pantalla 2025-11-18 130747.png",
         caption="Source: OVD 2024 Official report",
@@ -212,7 +212,7 @@ if selected_view == "Matches + DV calls":
 
     st.dataframe(df_matches_filtered)
 
-    st.markdown("#### Basic summary")
+    st.markdown("### Basic summary")
     st.write("Total matches in selection:", len(df_matches_filtered))
 
     total_calls_on_match_days = df_matches_filtered["dv_calls_AMBA"].sum()
@@ -260,7 +260,7 @@ st.markdown("---")
 # -----------------------------
 # 4) QUICK OVERVIEW GRAPHS
 # -----------------------------
-st.subheader("Overview – Matches & DV Calls")
+st.subheader("## Overview – Matches & DV Calls")
 
 # Ensure Date is datetime
 df_matches["Date"] = pd.to_datetime(df_matches["Date"], dayfirst=True, errors="coerce")
@@ -287,7 +287,7 @@ df_boca_matches = (
 df_boca_matches["Points"] = df_boca_matches["Win_Draw_Loss"].map(result_map)
 df_boca_matches["CumPoints"] = df_boca_matches["Points"].cumsum()
 
-st.markdown("### Graph 1 – Boca Juniors (Cumulative Points)")
+st.markdown("#### Graph 1 – Boca Juniors (Cumulative Points)")
 
 chart_boca = (
     alt.Chart(df_boca_matches)
@@ -314,7 +314,7 @@ df_river_matches = (
 df_river_matches["Points"] = df_river_matches["Win_Draw_Loss"].map(result_map)
 df_river_matches["CumPoints"] = df_river_matches["Points"].cumsum()
 
-st.markdown("### Graph 2 – River Plate (Cumulative Points)")
+st.markdown("#### Graph 2 – River Plate (Cumulative Points)")
 
 chart_river = (
     alt.Chart(df_river_matches)
