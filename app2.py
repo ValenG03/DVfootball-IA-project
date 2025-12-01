@@ -68,7 +68,7 @@ with col2:
     )
 
 st.subheader("Domestic Violence Definition")
-st.markdown(""Any single incident or pattern of conduct where someone’s behaviour towards another is abusive, and where the people involved are aged 16 or over and are, or have been, personally connected (Hasan et al., 2025)."")
+st.markdown("Any single incident or pattern of conduct where someone’s behaviour towards another is abusive, and where the people involved are aged 16 or over and are, or have been, personally connected (Hasan et al., 2025).")
 
 
 # -----------------------------
